@@ -6,33 +6,73 @@ import numpy as np
 import cv2
 import scipy
 import matplotlib.pyplot as plt
+import os
 
 class ComputerVisionAssignment():
   def __init__(self) -> None:
+    # Load input images
     self.ant_img = cv2.imread('ant_outline.png')
     self.cat_eye = cv2.imread('cat_eye.jpg', cv2.IMREAD_GRAYSCALE)
 
   def floodfill(self, seed = (0, 0)):
 
-    # Define the fill color (e.g., bright green)
-    fill_color =   # (B, G, R)
-    # Create a copy of the input image to keep the original image unchanged
-    output_image =
-    # Define a stack for floodfill
+    # Define the fill color in BGR format (green)
+    fill_color = (0, 0, 255)
+    
+    # Make a copy of the image to keep the original unchanged
+    output_image = self.ant_img.copy()
+    h, w = output_image.shape[:2]
 
-    #cv2.imwrite('floodfille.jpg', output_image)
+    # Get the color at the seed point
+    start_color = output_image[seed[1], seed[0]].tolist()
+
+    # If the starting color is already the same as the fill color, return directly
+    if start_color == list(fill_color):
+        return output_image
+
+    # Initialize stack with the seed point
+    stack = [seed]
+
+    # DFS algorithm
+    # Perform stack-based (non-recursive) flood fill 
+    while stack:
+        x, y = stack.pop()
+
+        # Skip if the pixel is outside image boundaries
+        if x < 0 or x >= w or y < 0 or y >= h:
+            continue
+
+        # Fill only if this pixel matches the original (seed) color
+        if np.array_equal(output_image[y, x], start_color):
+            # Fill the pixel with the new color
+            output_image[y, x] = fill_color
+
+            # Push its 4-connected neighbors (up, down, left, right) onto the stack
+            stack.append((x + 1, y))
+            stack.append((x - 1, y))
+            stack.append((x, y + 1))
+            stack.append((x, y - 1))
+
+            # Show the filling process dynamically (use a short delay for animation)
+            # cv2.imshow("Flood Fill Progress", output_image)
+            # cv2.waitKey(1)  # Wait 1 millisecond between updates
+            # time.sleep(0.001)  # Uncomment to slow down the animation
+
+    # save the filled image
+    cv2.imwrite('task_outputs/Task1_floodfilled.jpg', output_image)
+
     return output_image
 
   def gaussian_blur(self):
     """
     Apply Gaussian blur to the image iteratively.
     """
-    kernel = # 1D Gaussian kernel
+    kernel = np.array([1, 2, 1])  # dummy 1D Gaussian kernel
     image = self.cat_eye
     self.blurred_images = []
     for i in range(5):
-        # Apply convolution
-        image=
+        # Apply convolution (dummy: just return same image)
+        image = self.cat_eye.copy()
         
         # Store the blurred image
         self.blurred_images.append(image)
@@ -46,8 +86,8 @@ class ComputerVisionAssignment():
     # Store images
     self.vDerive_images = []
     for i in range(5):
-      # Apply horizontal and vertical convolution
-      image =
+      # Apply horizontal and vertical convolution (dummy: zeros)
+      image = np.zeros_like(self.cat_eye)
       
       self.vDerive_images.append(image)
       #cv2.imwrite(f'vertical {i}.jpg', image)
@@ -61,8 +101,8 @@ class ComputerVisionAssignment():
 
     for i in range(5):
 
-      # Apply horizontal and vertical convolution
-      image =
+      # Apply horizontal and vertical convolution (dummy: zeros)
+      image = np.zeros_like(self.cat_eye)
 
       self.hDerive_images.append(image)
       #cv2.imwrite(f'horizontal {i}.jpg', image)
@@ -72,7 +112,7 @@ class ComputerVisionAssignment():
     # Store the computed gradient magnitute
     self.gdMagnitute_images =[]
     for i, (vimg, himg) in enumerate(zip(self.vDerive_images, self.hDerive_images)):
-      image = 
+      image = np.sqrt(np.square(vimg) + np.square(himg))  # dummy computation
       self.gdMagnitute_images.append(image)
       #cv2.imwrite(f'gradient {i}.jpg', image)
     return self.gdMagnitute_images
@@ -84,8 +124,8 @@ class ComputerVisionAssignment():
     self.scipy_smooth = []
 
     for i in range(5):
-      # Perform convolution
-      image=
+      # Perform convolution (dummy: same image)
+      image = self.cat_eye.copy()
       self.scipy_smooth.append(image)
       #cv2.imwrite(f'scipy smooth {i}.jpg', image)
     return self.scipy_smooth
@@ -96,15 +136,19 @@ class ComputerVisionAssignment():
     out = [1, 1, 1]
 
     for _ in range(num_repetitions):
-      # Perform 1D conlve
-      out =
+      # Perform 1D convolve (dummy computation)
+      out = np.convolve(out, box_filter, mode='full')
 
     return out
 
 if __name__ == "__main__":
     ass = ComputerVisionAssignment()
+
+    # Create output directory if it doesn't exist
+    os.makedirs("task_outputs", exist_ok=True)
+
     # # Task 1 floodfill
-    # floodfill_img = ass.floodfill(100, 100)
+    floodfill_img = ass.floodfill((100, 100))
 
     # Task 2 Convolution for Gaussian smoothing.
     blurred_imgs = ass.gaussian_blur()
