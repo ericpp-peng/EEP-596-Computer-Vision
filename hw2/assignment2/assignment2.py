@@ -131,31 +131,93 @@ class ComputerVisionAssignment():
     return self.blurred_images
 
   def gaussian_derivative_vertical(self):
-    # Define kernels
-    
+
+    # 1D kernels
+    ks = 0.25 * np.array([1, 2, 1], dtype=np.float32)   # horizontal smoothing (1×3)
+    kd_v = 0.5 * np.array([1, 0, -1], dtype=np.float32) # vertical derivative (3×1), no flip
+
     # Store images
     self.vDerive_images = []
+
     for i in range(5):
-      # Apply horizontal and vertical convolution (dummy: zeros)
-      image = np.zeros_like(self.cat_eye)
-      
-      self.vDerive_images.append(image)
-      #cv2.imwrite(f'vertical {i}.jpg', image)
+      img = self.blurred_images[i].astype(np.float32)
+      h, w = img.shape
+
+      # --- 1) Horizontal smoothing (1x3) FIRST ---
+      # zero-pad left/right
+      padded_h = np.pad(img, ((0, 0), (1, 1)), mode='constant', constant_values=0)
+      hsm = np.zeros_like(img, dtype=np.float32)
+
+      for y in range(h):
+        for x in range(w):
+          hsm[y, x] = (
+            ks[0] * padded_h[y, x] +
+            ks[1] * padded_h[y, x+1] +
+            ks[2] * padded_h[y, x+2]
+          )
+
+      # --- 2) Vertical derivative (3x1) SECOND ---
+      # zero-pad top/bottom
+      padded_v = np.pad(hsm, ((1, 1), (0, 0)), mode='constant', constant_values=0)
+      vresp = np.zeros_like(hsm, dtype=np.float32)
+
+      for y in range(h):
+        for x in range(w):
+          vresp[y, x] = (
+            kd_v[0] * padded_v[y,   x] +
+            kd_v[1] * padded_v[y+1, x] +
+            kd_v[2] * padded_v[y+2, x]
+          )
+
+      # --- Convert to uint8: pout = clamp(2 * pin + 127) ---
+      pout = 2.0 * vresp + 127.0
+      pout = np.clip(np.round(pout), 0, 255).astype(np.uint8)
+
+      self.vDerive_images.append(pout)
+      # cv2.imwrite(f"task_outputs/Task3_vertical_derivative_{i}.jpg", pout)
+
     return self.vDerive_images
 
   def gaussian_derivative_horizontal(self):
-    #Define kernels
 
-    # Store images after computing horizontal derivative
+    ks   = 0.25 * np.array([1, 2, 1], dtype=np.float32)   # smoothing (vertical)
+    kd_h = 0.5  * np.array([1, 0, -1], dtype=np.float32)  # derivative (horizontal, no extra flip)
+
     self.hDerive_images = []
 
     for i in range(5):
+      img = self.blurred_images[i].astype(np.float32)
+      h, w = img.shape
 
-      # Apply horizontal and vertical convolution (dummy: zeros)
-      image = np.zeros_like(self.cat_eye)
+      # --- 1) Vertical smoothing (3x1) FIRST ---
+      padded_v = np.pad(img, ((1, 1), (0, 0)), mode='constant', constant_values=0)
+      vsm = np.zeros_like(img, dtype=np.float32)
+      for y in range(h):
+        for x in range(w):
+          vsm[y, x] = (
+            ks[0] * padded_v[y,   x] +
+            ks[1] * padded_v[y+1, x] +
+            ks[2] * padded_v[y+2, x]
+          )
 
-      self.hDerive_images.append(image)
-      #cv2.imwrite(f'horizontal {i}.jpg', image)
+      # --- 2) Horizontal derivative (1x3) SECOND ---
+      padded_h = np.pad(vsm, ((0, 0), (1, 1)), mode='constant', constant_values=0)
+      hresp = np.zeros_like(vsm, dtype=np.float32)
+      for y in range(h):
+        for x in range(w):
+          hresp[y, x] = (
+            kd_h[0] * padded_h[y, x] +
+            kd_h[1] * padded_h[y, x+1] +
+            kd_h[2] * padded_h[y, x+2]
+          )
+
+      # --- Convert to uint8: pout = clamp(2 * pin + 127) ---
+      pout = 2.0 * hresp + 127.0
+      pout = np.clip(np.round(pout), 0, 255).astype(np.uint8)
+
+      self.hDerive_images.append(pout)
+      # cv2.imwrite(f"task_outputs/Task4_horizontal_derivative_{i}.jpg", pout)
+
     return self.hDerive_images
 
   def gradient_magnitute(self):
