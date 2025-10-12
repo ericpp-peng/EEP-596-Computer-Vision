@@ -220,14 +220,74 @@ class ComputerVisionAssignment():
 
     return self.hDerive_images
 
-  def gradient_magnitute(self):
-    # Store the computed gradient magnitute
-    self.gdMagnitute_images =[]
-    for i, (vimg, himg) in enumerate(zip(self.vDerive_images, self.hDerive_images)):
-      image = np.sqrt(np.square(vimg) + np.square(himg))  # dummy computation
-      self.gdMagnitute_images.append(image)
-      #cv2.imwrite(f'gradient {i}.jpg', image)
-    return self.gdMagnitute_images
+  def gradient_magnitude(self):
+
+    # 1D kernels
+    ks   = 0.25 * np.array([1, 2, 1], dtype=np.float32)   # smoothing (symmetric)
+    kder = 0.5  * np.array([-1, 0, 1], dtype=np.float32)  # derivative (flipped for convolution)
+
+    # reset list to store the 5 gradient-magnitude images (one per blur level, uint8)
+    self.gdmagnitude_images = []
+
+    for i in range(5):
+        img = self.blurred_images[i].astype(np.float32)
+        h, w = img.shape
+
+        # gx: vertical smoothing (3×1)
+        pad_v = np.pad(img, ((1, 1), (0, 0)), mode='constant', constant_values=0)
+        vsm = np.zeros_like(img, dtype=np.float32)
+        for y in range(h):
+            for x in range(w):
+                vsm[y, x] = (
+                    ks[0] * pad_v[y,     x] +
+                    ks[1] * pad_v[y + 1, x] +
+                    ks[2] * pad_v[y + 2, x]
+                )
+
+        # gx: horizontal derivative (1×3), reversed indexing for convolution
+        pad_h = np.pad(vsm, ((0, 0), (1, 1)), mode='constant', constant_values=0)
+        gx = np.zeros_like(vsm, dtype=np.float32)
+        for y in range(h):
+            for x in range(w):
+                gx[y, x] = (
+                    kder[0] * pad_h[y, x + 2] +
+                    kder[1] * pad_h[y, x + 1] +
+                    kder[2] * pad_h[y, x    ]
+                )
+        gx = np.abs(gx)
+
+        # gy: horizontal smoothing (1×3)
+        pad_h2 = np.pad(img, ((0, 0), (1, 1)), mode='constant', constant_values=0)
+        hsm = np.zeros_like(img, dtype=np.float32)
+        for y in range(h):
+            for x in range(w):
+                hsm[y, x] = (
+                    ks[0] * pad_h2[y, x    ] +
+                    ks[1] * pad_h2[y, x + 1] +
+                    ks[2] * pad_h2[y, x + 2]
+                )
+
+        # gy: vertical derivative (3×1), reversed indexing for convolution
+        pad_v2 = np.pad(hsm, ((1, 1), (0, 0)), mode='constant', constant_values=0)
+        gy = np.zeros_like(hsm, dtype=np.float32)
+        for y in range(h):
+            for x in range(w):
+                gy[y, x] = (
+                    kder[0] * pad_v2[y + 2, x] +
+                    kder[1] * pad_v2[y + 1, x] +
+                    kder[2] * pad_v2[y,     x]
+                )
+        gy = np.abs(gy)
+
+        # Manhattan magnitude and uint8 conversion
+        pin = gx + gy
+        pout = 4.0 * pin
+        pout = np.clip(np.round(pout), 0, 255).astype(np.uint8)
+
+        self.gdmagnitude_images.append(pout)
+        # cv2.imwrite(f"task_outputs/Task5_gradmag_{i}.jpg", pout)
+
+    return self.gdmagnitude_images
     
   def scipy_convolve(self):
     # Define the 2D smoothing kernel
@@ -272,7 +332,7 @@ if __name__ == "__main__":
     horizontal_derivative = ass.gaussian_derivative_horizontal()
 
     # Task 5 Gradient magnitude.
-    Gradient_magnitude = ass.gradient_magnitute()
+    Gradient_magnitude = ass.gradient_magnitude()
 
     # Task 6 Built-in convolution
     scipy_convolve = ass.scipy_convolve()
