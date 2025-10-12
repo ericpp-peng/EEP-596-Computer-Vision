@@ -67,17 +67,67 @@ class ComputerVisionAssignment():
     """
     Apply Gaussian blur to the image iteratively.
     """
-    kernel = np.array([1, 2, 1])  # dummy 1D Gaussian kernel
-    image = self.cat_eye
+    kernel = 0.25 * np.array([1, 2, 1])
+
+    # Make a copy of the original grayscale image
+    image = self.cat_eye.astype(np.float32)
+
+    # Store blurred images
     self.blurred_images = []
+    
     for i in range(5):
-        # Apply convolution (dummy: just return same image)
-        image = self.cat_eye.copy()
-        
-        # Store the blurred image
-        self.blurred_images.append(image)
-        
-        #cv2.imwrite(f'gaussain blur {i}.jpg', image)
+        # Apply convolution
+        # --- Vertical convolution (3x1) ---
+        h, w = image.shape
+
+        # Add one row of zeros to the top and bottom to handle boundary pixels safely
+        padded = np.pad(image, ((1, 1), (0, 0)), mode='constant', constant_values=0)
+
+        # Create an empty image (same size and type as the input image) to store the vertically blurred result
+        vert_blur = np.zeros_like(image)
+
+        for y in range(h):
+            for x in range(w):
+                # Multiply 3 neighboring pixels vertically with kernel
+                vert_blur[y, x] = (
+                    kernel[0] * padded[y, x] +
+                    kernel[1] * padded[y + 1, x] +
+                    kernel[2] * padded[y + 2, x]
+                )
+            # --- Add this block to visualize the convolution process dynamically ---
+            # if y % 1 == 0:  # Update every 10 rows (you can change to 1 for smoother animation)
+                # display_img = np.clip(vert_blur / np.max(vert_blur) * 255, 0, 255).astype(np.uint8)
+                # cv2.imshow("Vertical Convolution Progress", display_img)
+                # cv2.waitKey(1)  # Wait 1ms to create animation effect
+
+        # --- Horizontal convolution (1x3) ---
+        # Add one row of zeros to the left and right to handle boundary pixels safely
+        padded_h = np.pad(vert_blur, ((0, 0), (1, 1)), mode='constant', constant_values=0)
+
+        # Create an empty image (same size and type as vert_blur) to store the horizontally blurred result
+        horiz_blur = np.zeros_like(vert_blur)
+
+        # Vertical and horizontal convolutions differ in direction but share the same scanning order
+        for y in range(h):
+            for x in range(w):
+                horiz_blur[y, x] = (
+                    kernel[0] * padded_h[y, x] +
+                    kernel[1] * padded_h[y, x + 1] +
+                    kernel[2] * padded_h[y, x + 2]
+                )
+
+        # Clamp to [0, 255] and convert to uint8
+        horiz_blur = np.clip(np.round(horiz_blur), 0, 255).astype(np.uint8)
+
+        # Save the current blurred image
+        self.blurred_images.append(horiz_blur)
+
+        # Update the image for the next iteration
+        image = horiz_blur.astype(np.float32)
+
+        # save the image
+        # cv2.imwrite(f"task_outputs/Task2_blur_{i}.jpg", horiz_blur)
+
     return self.blurred_images
 
   def gaussian_derivative_vertical(self):
