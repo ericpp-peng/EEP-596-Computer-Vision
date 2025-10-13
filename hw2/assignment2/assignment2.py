@@ -320,15 +320,57 @@ class ComputerVisionAssignment():
     return self.scipy_smooth
 
   def box_filter(self, num_repetitions):
-    # Define box filter
-    box_filter = [1, 1, 1]
-    out = [1, 1, 1]
+    
+    # Base 1D box filter
+    base = np.array([1, 1, 1], dtype=np.int64)
 
+    # Start from the original filter
+    current = base.copy()
+
+    # Repeat 'num_repetitions' times
     for _ in range(num_repetitions):
-      # Perform 1D convolve (dummy computation)
-      out = np.convolve(out, box_filter, mode='full')
+        a = current
+        b = base
 
-    return out
+        # Full 1D convolution length: len(a) + len(b) - 1
+        out_len = a.shape[0] + b.shape[0] - 1
+        out = np.zeros(out_len, dtype=np.int64)
+
+        # Manual convolution: add & multiply only
+        for i in range(a.shape[0]):
+            ai = a[i]
+            for j in range(b.shape[0]):
+                out[i + j] += ai * b[j]
+
+        # Update for next repetition
+        current = out
+
+    return current
+
+  def plot_box_powers(self, max_repetitions=5):
+    """
+    Plot the filters after 0..max_repetitions convolutions with [1,1,1].
+    No normalization (as per instructions); this is just to visualize the shape.
+    """
+    import matplotlib.pyplot as plt
+
+    # Build all powers from 0..max_repetitions
+    filters = []
+    for r in range(max_repetitions + 1):
+        filters.append(self.box_filter(r))  # r=0 returns [1,1,1]
+
+    plt.figure(figsize=(8, 5))
+    for k, f in enumerate(filters):
+        x = np.arange(len(f))
+        plt.plot(x, f, label=f"{k} convs")
+    plt.title(f"Repeated box filtering (0..{max_repetitions} convolutions)")
+    plt.xlabel("index")
+    plt.ylabel("value")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    # plt.savefig("task_outputs/Task7_box_powers.png")
+    # plt.show()
 
 if __name__ == "__main__":
     ass = ComputerVisionAssignment()
@@ -356,3 +398,4 @@ if __name__ == "__main__":
 
     # Task 7 Repeated box filtering
     box_filter = ass.box_filter(5)
+    # ass.plot_box_powers(5)  # visualize 0..5
