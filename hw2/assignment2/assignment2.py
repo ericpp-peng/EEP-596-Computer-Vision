@@ -220,7 +220,7 @@ class ComputerVisionAssignment():
 
     return self.hDerive_images
 
-  def gradient_magnitude(self):
+  def gradient_magnitute(self):
 
     # 1D kernels
     ks   = 0.25 * np.array([1, 2, 1], dtype=np.float32)   # smoothing (symmetric)
@@ -290,16 +290,33 @@ class ComputerVisionAssignment():
     return self.gdmagnitude_images
     
   def scipy_convolve(self):
-    # Define the 2D smoothing kernel
-   
-    # Store outputs
+    
+    # 1D kernels: smoothing is symmetric; derivative is flipped for true convolution
+    ks_row = (0.25 * np.array([1, 2, 1], dtype=np.float32)).reshape(1, 3)   # 1×3
+    kder_col = (0.5  * np.array([1, 0, -1], dtype=np.float32)).reshape(3, 1) # 3×1 (vertical derivative; unflipped)
+
     self.scipy_smooth = []
 
     for i in range(5):
-      # Perform convolution (dummy: same image)
-      image = self.cat_eye.copy()
-      self.scipy_smooth.append(image)
-      #cv2.imwrite(f'scipy smooth {i}.jpg', image)
+        img = self.blurred_images[i].astype(np.float32)
+
+        # Step 1: horizontal smoothing (1×3), zero padding, same size
+        smoothed = scipy.signal.convolve2d(
+            img, ks_row, mode='same', boundary='fill', fillvalue=0
+        )
+
+        # Step 2: vertical derivative (3×1), zero padding, same size
+        vresp = scipy.signal.convolve2d(
+            smoothed, kder_col, mode='same', boundary='fill', fillvalue=0
+        )
+
+        # Map to uint8 for visualization (same as Task 3)
+        pout = 2.0 * vresp + 127.0
+        pout = np.clip(np.round(pout), 0, 255).astype(np.uint8)
+
+        self.scipy_smooth.append(pout)
+        # cv2.imwrite(f"task_outputs/Task6_scipy_vertical_derivative_{i}.jpg", pout)
+
     return self.scipy_smooth
 
   def box_filter(self, num_repetitions):
@@ -332,7 +349,7 @@ if __name__ == "__main__":
     horizontal_derivative = ass.gaussian_derivative_horizontal()
 
     # Task 5 Gradient magnitude.
-    Gradient_magnitude = ass.gradient_magnitude()
+    Gradient_magnitude = ass.gradient_magnitute()
 
     # Task 6 Built-in convolution
     scipy_convolve = ass.scipy_convolve()
