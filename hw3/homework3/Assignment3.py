@@ -122,8 +122,18 @@ class Assignment3:
         return z
 
     def dimension_rearrange(self, img):
+        # Load image in BGR (OpenCV default) and convert to RGB
+        img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
 
-        return rearrange
+        # Convert NumPy array to torch tensor (float32)
+        x = torch.from_numpy(img_rgb).to(torch.float32)
+
+        # Rearrange dimensions:
+        # Original: (H, W, C)
+        # Target:   (N, C, H, W) where N=1 for a single image
+        x = x.permute(2, 0, 1).unsqueeze(0)
+
+        return x
 
     def chain_rule(self, x, y, z):
 
