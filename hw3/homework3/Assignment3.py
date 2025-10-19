@@ -63,12 +63,63 @@ class Assignment3:
         return noisy_img
 
     def normalization_image(self, img):
+        # Convert BGR -> RGB
+        img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
 
-        return image_norm
+        # Convert NumPy array to torch tensor (float64) and rescale pixel values to [0, 1].
+        # CNNs typically expect input images normalized to this range for stable training and inference.
+        x = torch.from_numpy(img_rgb).to(torch.float64) / 255.0
+
+        # Clamp is not strictly necessary here (values should already be in [0,1]),
+        # but it helps guard against rare rounding errors or unexpected upstream inputs.
+        x = x.clamp(0.0, 1.0)
+
+        # Normalize image per channel (R, G, B) so that each channel has mean ≈ 0 and std ≈ 1
+        # Compute the mean value for each channel (R, G, B)
+        # Take the average over the height (H) and width (W) dimensions
+        # Result shape: [C], where C = 3 for RGB
+        mean = x.mean(dim=(0, 1))
+
+        # Compute the standard deviation (spread of values) for each channel
+        # Use population standard deviation (unbiased=False) because we treat the whole image as a full population
+        std  = x.std(dim=(0, 1), unbiased=False)
+
+        # Small epsilon to prevent division by zero when std is extremely small
+        eps = 1e-12
+
+        # Normalize each pixel value:
+        #   1. Subtract the mean → centers values around 0 (removes brightness bias)
+        #   2. Divide by std → scales values to have unit variance (removes contrast bias)
+        # The result z has mean ≈ 0 and std ≈ 1 for each channel
+        z = (x - mean) / (std + eps)
+
+
+        # Ensure normalized values are within [-1, 1] range
+        # This prevents extreme pixel values from causing instability
+        # and matches the expected input range for CNN model.
+        z = z.clamp(-1.0, 1.0)
+
+        return z
 
     def Imagenet_norm(self, img):
+        # Convert BGR (OpenCV default) to RGB (used by PyTorch/ImageNet)
+        img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
 
-        return ImageNet_norm
+        # Convert to float64 and scale pixel values from [0, 255] → [0, 1]
+        x = torch.from_numpy(img_rgb).to(torch.float64) / 255.0
+        x = x.clamp(0.0, 1.0)
+
+        # ImageNet per-channel mean and std (for RGB)
+        im_mean = torch.tensor([0.485, 0.456, 0.406], dtype=torch.float64)
+        im_std  = torch.tensor([0.229, 0.224, 0.225], dtype=torch.float64)
+
+        # Normalize each channel to match ImageNet training distribution
+        z = (x - im_mean) / im_std
+
+        # Clamp to [-1, 1] to match the expected input range of the model
+        z = z.clamp(-1.0, 1.0)
+
+        return z
 
     def dimension_rearrange(self, img):
 
