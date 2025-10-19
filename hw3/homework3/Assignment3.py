@@ -134,6 +134,39 @@ class Assignment3:
         x = x.permute(2, 0, 1).unsqueeze(0)
 
         return x
+    
+
+    def stride(self, img):
+        # Step 1. img is already grayscale (H, W)
+        x = torch.from_numpy(img).to(torch.float32)
+
+        # Step 2. Define 3x3 Scharr_x kernel
+        scharr_x = torch.tensor([
+            [-3.,  0.,  3.],
+            [-10., 0., 10.],
+            [-3.,  0.,  3.]
+        ], dtype=torch.float32)
+
+        # Step 3. Flip kernel for true convolution
+        scharr_x = torch.flip(scharr_x, dims=[0, 1])
+
+        # Step 4. Pad image with 0 (pad=1 keeps size for stride=1)
+        x_padded = torch.nn.functional.pad(x, pad=(1, 1, 1, 1), mode='constant', value=0)
+
+        # Step 5. Manual stride convolution
+        stride = 2
+        H, W = x_padded.shape
+        out_H = (H - 3) // stride + 1
+        out_W = (W - 3) // stride + 1
+        y = torch.zeros((out_H, out_W), dtype=torch.float32)
+
+        for i in range(0, H - 2, stride):
+            for j in range(0, W - 2, stride):
+                region = x_padded[i:i+3, j:j+3]
+                y[i // stride, j // stride] = torch.sum(region * scharr_x)
+
+        # Return 2D FloatTensor
+        return y
 
     def chain_rule(self, x, y, z):
 
@@ -154,5 +187,6 @@ if __name__ == "__main__":
     image_norm = assign.normalization_image(img)
     ImageNet_norm = assign.Imagenet_norm(img)
     rearrange = assign.dimension_rearrange(img)
+    stride_img = assign.stride(img)
     df_dx, df_dy, df_dz, df_dq = assign.chain_rule(x=-2.0, y=5.0, z=-4.0)
     dx, dw = assign.relu(x=[-1.0, 2.0], w=[2.0, -3.0, -3.0])
