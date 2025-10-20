@@ -3,10 +3,15 @@ import torch
 import torchvision
 import cv2 as cv
 import matplotlib.pyplot as plt
+from torchvision.utils import save_image
+import os
 
 
 class Assignment3:
     def __init__(self) -> None:
+        # Create a common output directory for all generated images
+        self.output_dir = "task_outputs"
+        os.makedirs(self.output_dir, exist_ok=True)
         pass
 
     def torch_image_conversion(self, img):
@@ -41,6 +46,13 @@ class Assignment3:
         # in general means clamping values at 255 — a key distinction to remember for future work.
         saturated_img = torch_img + torch.tensor(100, dtype=torch.uint8)
 
+        # Save image
+        # save_path = os.path.join(self.output_dir, "Task1c_saturation.png")
+        # save_image(
+        #     saturated_img.permute(2, 0, 1).to(torch.float32) / 255.0,
+        #     save_path
+        # )
+
         return saturated_img
 
     def add_noise(self, torch_img):
@@ -59,6 +71,10 @@ class Assignment3:
 
         # Normalize pixel values to [0, 1]; clamp again for safety
         noisy_img = (y / 255.0).clamp(0.0, 1.0).to(torch.float32)
+
+        # Save output to task_outputs/
+        # save_path = os.path.join(self.output_dir, "Task2_add_noise.png")
+        # save_image(noisy_img.permute(2, 0, 1), save_path)
 
         return noisy_img
 
@@ -119,6 +135,10 @@ class Assignment3:
         # Clamp to [-1, 1] to match the expected input range of the model
         z = z.clamp(-1.0, 1.0)
 
+        # Save image
+        # save_path = os.path.join(self.output_dir, "Task3b_Imagenet_norm.png")
+        # save_image(((z + 1) / 2).permute(2, 0, 1).to(torch.float32), save_path)
+
         return z
 
     def dimension_rearrange(self, img):
@@ -132,6 +152,10 @@ class Assignment3:
         # Original: (H, W, C)
         # Target:   (N, C, H, W) where N=1 for a single image
         x = x.permute(2, 0, 1).unsqueeze(0)
+
+        # Save as single batch image
+        # save_path = os.path.join(self.output_dir, "Task4_rearrange.png")
+        # save_image(x[0] / 255.0, save_path)
 
         return x
     
@@ -164,6 +188,10 @@ class Assignment3:
             for j in range(0, W - 2, stride):
                 region = x_padded[i:i+3, j:j+3]
                 y[i // stride, j // stride] = torch.sum(region * scharr_x)
+
+        # Save output grayscale image normalized to [0,1]
+        # save_path = os.path.join(self.output_dir, "Task5_stride.png")
+        # save_image((y - y.min()) / (y.max() - y.min()), save_path)
 
         # Return 2D FloatTensor
         return y
