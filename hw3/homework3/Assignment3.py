@@ -168,14 +168,6 @@ class Assignment3:
         # Return 2D FloatTensor
         return y
 
-    def chain_rule(self, x, y, z):
-
-        return df_dx, df_dy, df_dz, df_dq
-
-    def relu(self, x, w):
-
-        return dx, dw
-
 
 if __name__ == "__main__":
     img = cv.imread("original_image.png")
@@ -187,6 +179,6 @@ if __name__ == "__main__":
     image_norm = assign.normalization_image(img)
     ImageNet_norm = assign.Imagenet_norm(img)
     rearrange = assign.dimension_rearrange(img)
+
+    img = cv.imread("cat_eye.jpg", cv.IMREAD_GRAYSCALE)
     stride_img = assign.stride(img)
-    df_dx, df_dy, df_dz, df_dq = assign.chain_rule(x=-2.0, y=5.0, z=-4.0)
-    dx, dw = assign.relu(x=[-1.0, 2.0], w=[2.0, -3.0, -3.0])
