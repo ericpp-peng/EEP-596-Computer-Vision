@@ -147,15 +147,17 @@ def evalNetwork():
     return accuracy
 
 def get_first_layer_weights():
+    PATH = './cifar_net_2epoch.pth'
     net = Net()
-    # TODO: load the trained weights
-    first_weight = None  # TODO: get conv1 weights (exclude bias)
+    net.load_state_dict(torch.load(PATH))
+    first_weight = net.conv1.weight  # get conv1 weights (exclude bias)
     return first_weight
 
 def get_second_layer_weights():
+    PATH = './cifar_net_2epoch.pth'
     net = Net()
-    # TODO: load the trained weights
-    second_weight = None  # TODO: get conv2 weights (exclude bias)
+    net.load_state_dict(torch.load(PATH))
+    second_weight = net.conv2.weight  # get conv2 weights (exclude bias)
     return second_weight
 
 def hyperparameter_sweep():
@@ -170,9 +172,12 @@ def hyperparameter_sweep():
 
 if __name__ == "__main__":
     # your text code here
-    # Step 1: Train model (generate .pth)
-    train_classifier()
+    # # Step 1: Train model (generate .pth)
+    # train_classifier()
 
-    # Step 2: Evaluate accuracy
-    evalNetwork()
+    # # Step 2: Evaluate accuracy
+    # evalNetwork()
+
+    weight1 = get_first_layer_weights()
+    weight2 = get_second_layer_weights()
     # images, labels = CIFAR10_dataset_a()
