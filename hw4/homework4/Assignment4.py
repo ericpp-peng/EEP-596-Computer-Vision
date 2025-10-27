@@ -161,14 +161,108 @@ def get_second_layer_weights():
     return second_weight
 
 def hyperparameter_sweep():
-    '''
-    Reuse the CNN and training code from Question 2
-    Train the network three times using different learning rates: 0.01, 0.001, and 0.0001
-    During training, record the training loss every 2000 iterations
-    compute and record the training and test errors every 2000 iterations by randomly sampling 1000 images from each dataset
-    After training, plot three curves
-    '''
-    return None
+    """Train CNN with 3 different learning rates and plot loss/error curves."""
+    lrs = [0.01, 0.001, 0.0001]
+    num_epochs = 2
+    batch_size = 4
+    record_interval = 2000
+
+    # Data transform (same as before)
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
+
+    trainset = torchvision.datasets.CIFAR10(root='./cifar10', train=True,
+                                            download=False, transform=transform)
+    testset = torchvision.datasets.CIFAR10(root='./cifar10', train=False,
+                                           download=False, transform=transform)
+
+    # For reproducibility
+    torch.manual_seed(42)
+
+    # Create figure for all plots
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+    titles = ["Training Loss", "Training Error", "Test Error"]
+
+    for lr in lrs:
+        net = Net()
+        criterion = nn.CrossEntropyLoss()
+        optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
+        trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
+                                                  shuffle=True, num_workers=2)
+        testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
+                                                 shuffle=False, num_workers=2)
+
+        losses, train_errors, test_errors = [], [], []
+        running_loss, total, correct = 0.0, 0, 0
+        iteration = 0
+
+        for epoch in range(num_epochs):
+            for i, data in enumerate(trainloader, 0):
+                iteration += 1
+                inputs, labels = data
+                optimizer.zero_grad()
+                outputs = net(inputs)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+                running_loss += loss.item()
+
+                # Record every 2000 iterations
+                if iteration % record_interval == 0:
+                    avg_loss = running_loss / record_interval
+                    losses.append(avg_loss)
+                    running_loss = 0.0
+
+                    # --- Compute training error on random 1000 samples ---
+                    idx = torch.randperm(len(trainset))[:1000]
+                    subset = torch.utils.data.Subset(trainset, idx)
+                    subloader = torch.utils.data.DataLoader(subset, batch_size=batch_size)
+                    correct, total = 0, 0
+                    with torch.no_grad():
+                        for imgs, lbls in subloader:
+                            outs = net(imgs)
+                            _, pred = torch.max(outs, 1)
+                            total += lbls.size(0)
+                            correct += (pred == lbls).sum().item()
+                    train_error = 1 - (correct / total)
+                    train_errors.append(train_error)
+
+                    # --- Compute test error on random 1000 samples ---
+                    idx = torch.randperm(len(testset))[:1000]
+                    subset = torch.utils.data.Subset(testset, idx)
+                    subloader = torch.utils.data.DataLoader(subset, batch_size=batch_size)
+                    correct, total = 0, 0
+                    with torch.no_grad():
+                        for imgs, lbls in subloader:
+                            outs = net(imgs)
+                            _, pred = torch.max(outs, 1)
+                            total += lbls.size(0)
+                            correct += (pred == lbls).sum().item()
+                    test_error = 1 - (correct / total)
+                    test_errors.append(test_error)
+
+                    print(f"[lr={lr}] Iter {iteration}: loss={avg_loss:.3f}, "
+                          f"train_err={train_error:.3f}, test_err={test_error:.3f}")
+
+        # Plot results for this LR
+        iters = [record_interval * i for i in range(1, len(losses) + 1)]
+        axes[0].plot(iters, losses, label=f"lr={lr}")
+        axes[1].plot(iters, train_errors, label=f"lr={lr}")
+        axes[2].plot(iters, test_errors, label=f"lr={lr}")
+
+    # Finalize all plots
+    for i in range(3):
+        axes[i].set_xlabel("Iteration")
+        axes[i].set_title(titles[i])
+        axes[i].legend()
+    axes[0].set_ylabel("Loss / Error")
+    plt.tight_layout()
+    plt.savefig("HW4_Q4_hyperparameter_sweep.png")
+    print("Saved plots as HW4_Q4_hyperparameter_sweep.png")
+    plt.show()
+
 
 if __name__ == "__main__":
     # your text code here
@@ -178,6 +272,7 @@ if __name__ == "__main__":
     # # Step 2: Evaluate accuracy
     # evalNetwork()
 
-    weight1 = get_first_layer_weights()
-    weight2 = get_second_layer_weights()
+    # weight1 = get_first_layer_weights()
+    # weight2 = get_second_layer_weights()
     # images, labels = CIFAR10_dataset_a()
+    hyperparameter_sweep()

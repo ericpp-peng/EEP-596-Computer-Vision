@@ -90,3 +90,8 @@ size_batchimage_bytes: 30,720 KB
 [2, 12000] loss: 1.279
 Accuracy of the network on the 10000 test images: 54.7 %
 ```
+
+= Task 4 – Hyperparameter sweep
+#figure(
+  image("HW4_Q4_hyperparameter_sweep.png", width: 7in),
+)
