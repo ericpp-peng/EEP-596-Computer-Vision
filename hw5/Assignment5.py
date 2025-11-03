@@ -292,16 +292,26 @@ def sgd(x0, y0, lr=0.05):
     max_iters = 500
     tol = 1e-3
 
-    for _ in range(max_iters):
+    for i in range(max_iters):
         gx, gy = sample(fx, x, y), sample(fy, x, y)
         new_x = x - lr * gx
         new_y = y - lr * gy
 
+        # Print progress every 50 iters to observe convergence (for experiment only)
+        # if i % 50 == 0:
+        #     print(f"[lr={lr}] iter={i:4d}  ->  (x={new_x:.2f}, y={new_y:.2f})")
+
         if ((new_x - x)**2 + (new_y - y)**2)**0.5 < tol:
+            # Print when convergence is reached (for experiment only)
+            # print(f"[lr={lr}] Converged after {i} iterations -> ({new_x:.2f}, {new_y:.2f})")
             x, y = new_x, new_y
             break
 
         x, y = new_x, new_y
+    
+    # Print if not converged within max iterations (for experiment only)
+    # if i == max_iters - 1:
+    #     print(f"[lr={lr}] Did NOT converge within {max_iters} iterations -> ({x:.2f}, {y:.2f})")
 
     x = max(0.0, min(x, W - 1.0))
     y = max(0.0, min(y, H - 1.0))
@@ -309,11 +319,28 @@ def sgd(x0, y0, lr=0.05):
 
 
 # local debug
-if __name__ == "__main__":
-    print("Testing newtonMethod...")
-    result = newtonMethod(10, 200)
-    print("Result:", result)
+# if __name__ == "__main__":
+    # # Test Newton's method (for verifying Task 5a)
+    # print("Testing newtonMethod...")
+    # result = newtonMethod(10, 200)
+    # print("Result:", result)
 
-    print("Testing SGD...")
-    result_sgd = sgd(10, 200, lr=0.05)
-    print("SGD Result:", result_sgd)
+    # # Test SGD with a single learning rate (basic check)
+    # print("Testing SGD...")
+    # result_sgd = sgd(10, 200, lr=0.05)
+    # print("SGD Result:", result_sgd)∏
+
+    # # Test SGD with multiple learning rates and starting points (for Task 5b analysis)
+    # print("Testing SGD with different learning rates and starting points:")
+    # tests = [
+    #     (10, 200, 0.01),
+    #     (10, 200, 0.05),
+    #     (10, 200, 0.5),
+    #     (20, 240, 0.5),
+    #     (20, 240, 0.1),
+    #     (10, 200, 1.0)
+    # ]
+
+    # for (x0, y0, lr) in tests:
+    #     print(f"\nStart=({x0},{y0}), lr={lr}")
+    #     sgd(x0, y0, lr=lr)
