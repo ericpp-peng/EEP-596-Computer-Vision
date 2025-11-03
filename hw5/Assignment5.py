@@ -33,6 +33,24 @@ def ReLU():
         dw -- gradient with respect to weights (including the third term w2), 
               as a vector [dw0, dw1, dw2]
     """
+    # given data
+    x0, x1 = -1.0, -2.0
+    w0, w1, w2 = 2.0, -3.0, -3.0
+
+    s = w0 * x0 + w1 * x1 + w2  # pre-activation
+    if s > 0:
+        dy_ds = 1.0
+        dx0 = dy_ds * w0
+        dx1 = dy_ds * w1
+        dw0 = dy_ds * x0
+        dw1 = dy_ds * x1
+        dw2 = dy_ds * 1.0
+    else:
+        dx0 = dx1 = 0.0
+        dw0 = dw1 = dw2 = 0.0
+
+    dx = [dx0, dx1]
+    dw = [dw0, dw1, dw2]
     return dx, dw
 
 def chain_rule_a():
