@@ -59,7 +59,12 @@ def chain_rule_a():
     a=0.37, b=1.37, and c=0.73.  
     Calculate these numbers to 4 decimal digits and return in order of a, b, c
     """
-    return a, b, c
+    
+    a = torch.exp(torch.tensor(-1.0))
+    b = 1 + a
+    c = 1 / b
+    # Round to 4 decimal digits
+    return round(a.item(), 4), round(b.item(), 4), round(c.item(), 4)
 
 def chain_rule_b():
     """
@@ -68,7 +73,25 @@ def chain_rule_b():
     Calculate these numbers to 4 decimal digits 
     and return in order of gradients for w0, x0, w1, x1, w2.
     """
-    return gw0, gx0, gw1, gx1, gw2
+
+    w0 = torch.tensor(2.0, requires_grad=True)
+    x0 = torch.tensor(-1.0, requires_grad=True)
+    w1 = torch.tensor(-3.0, requires_grad=True)
+    x1 = torch.tensor(-2.0, requires_grad=True)
+    w2 = torch.tensor(-3.0, requires_grad=True)
+
+    # forward pass
+    a = w0 * x0 + w1 * x1 + w2
+    f = 1 / (1 + torch.exp(-a))
+
+    # backward pass
+    f.backward()
+
+    # keep tensor type but round to 4 decimals
+    def r(t):
+        return torch.tensor(round(t.item(), 4))
+
+    return r(w0.grad), r(x0.grad), r(w1.grad), r(x1.grad), r(w2.grad)
 
 def backprop_a():
     """
