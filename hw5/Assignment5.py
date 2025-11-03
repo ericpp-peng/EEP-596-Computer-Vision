@@ -100,6 +100,19 @@ def backprop_a():
     the input vector is  x = [x0=-1,x1= 4],, and the bias is  w2  =-2.
     Use PyTorch to calculate the forward pass of the network, return y_hat = f(w,x).
     """
+    # Define weights and inputs as float tensors (no gradient needed yet)
+    w0 = torch.tensor(5.0)
+    w1 = torch.tensor(2.0)
+    w2 = torch.tensor(-2.0)
+    x0 = torch.tensor(-1.0)
+    x1 = torch.tensor(4.0)
+
+    # Compute the linear combination
+    z = w0 * x0 + w1 * x1 + w2
+    # Apply the tanh activation function (must use torch.tanh for autograd support)
+    y_hat = torch.tanh(z)
+
+    # Return scalar float value (not tensor)
     return y_hat
 
 def backprop_b():
@@ -108,8 +121,26 @@ def backprop_b():
     for each of the weights, and return the gradient of them 
     in order of w0, w1, and w2.
     """
+    # Define inputs and weights, all require gradients
+    w0 = torch.tensor(5.0, requires_grad=True)
+    w1 = torch.tensor(2.0, requires_grad=True)
+    w2 = torch.tensor(-2.0, requires_grad=True)
+    x0 = torch.tensor(-1.0)
+    x1 = torch.tensor(4.0)
+    target = torch.tensor(1.0)  # ground truth
 
-    return gw0, gw1, gw2
+    # Forward pass
+    z = w0 * x0 + w1 * x1 + w2
+    y_hat = torch.tanh(z)
+
+    # Define MSE loss
+    loss = (y_hat - target) ** 2
+
+    # Backward pass (compute gradients)
+    loss.backward()
+
+    # Return gradients as tensors
+    return w0.grad, w1.grad, w2.grad
 
 def backprop_c():
     """
@@ -118,7 +149,34 @@ def backprop_c():
     For simplicity, just do one iteration. 
     And return the updated weights in the order of w0, w1, and w2 
     """
-    return  w0, w1, w2 
+    # Define inputs and weights, all require gradients
+    w0 = torch.tensor(5.0, requires_grad=True)
+    w1 = torch.tensor(2.0, requires_grad=True)
+    w2 = torch.tensor(-2.0, requires_grad=True)
+    x0 = torch.tensor(-1.0)
+    x1 = torch.tensor(4.0)
+    target = torch.tensor(1.0)
+
+    # Forward pass
+    z = w0 * x0 + w1 * x1 + w2
+    y_hat = torch.tanh(z)
+
+    # MSE loss
+    loss = (y_hat - target) ** 2
+
+    # Compute gradients
+    loss.backward()
+
+    # Learning rate
+    lr = 0.1
+
+    # Manual gradient descent update
+    new_w0 = w0 - lr * w0.grad
+    new_w1 = w1 - lr * w1.grad
+    new_w2 = w2 - lr * w2.grad
+
+    # Return updated weights as torch.Tensors
+    return new_w0, new_w1, new_w2
 
 
 def constructParaboloid(w=256, h=256):
