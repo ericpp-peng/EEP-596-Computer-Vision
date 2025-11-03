@@ -15,7 +15,12 @@ def chain_rule():
     where q=xy, at x=-2, y=5, z=-4.
     Return them in this order: df/dz, df/dq, df/dx, df/dy. 
     """ 
-    return 
+    x, y, z = -2.0, 5.0, -4.0
+    df_dz = 1.0
+    df_dq = 1.0
+    df_dx = y  # 5
+    df_dy = x  # -2
+    return df_dz, df_dq, df_dx, df_dy
 
 def ReLU():
     """
