@@ -291,12 +291,65 @@ def transfer_learning():
 
     print(f"Accuracy on 10000 test images: {100 * correct / total:.2f}%")
 
-# class MobileNetV1(nn.Module):
-#     """Define MobileNetV1 please keep the strucutre of the class Q5"""
-#     def __init__(self, ch_in, n_classes):
+
+class DepthwiseSeparableConv(nn.Module):
+    """Depthwise Separable Convolution block used in MobileNetV1"""
+    def __init__(self, in_ch, out_ch, stride=1):
+        super(DepthwiseSeparableConv, self).__init__()
+        self.depthwise = nn.Sequential(
+            nn.Conv2d(in_ch, in_ch, kernel_size=3, stride=stride, padding=1, groups=in_ch, bias=False),
+            nn.BatchNorm2d(in_ch),
+            nn.ReLU(inplace=True)
+        )
+        self.pointwise = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, kernel_size=1, stride=1, padding=0, bias=False),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(inplace=True)
+        )
+
+    def forward(self, x):
+        x = self.depthwise(x)
+        x = self.pointwise(x)
+        return x
 
 
-#     def forward(self, x):
+class MobileNetV1(nn.Module):
+    """Q5: Implement MobileNetV1 architecture"""
+    def __init__(self, ch_in, n_classes):
+        super(MobileNetV1, self).__init__()
+        self.model = nn.Sequential(
+            # initial conv layer
+            nn.Conv2d(ch_in, 32, kernel_size=3, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+
+            # depthwise separable blocks
+            DepthwiseSeparableConv(32, 64, stride=1),
+            DepthwiseSeparableConv(64, 128, stride=2),
+            DepthwiseSeparableConv(128, 128, stride=1),
+            DepthwiseSeparableConv(128, 256, stride=2),
+            DepthwiseSeparableConv(256, 256, stride=1),
+            DepthwiseSeparableConv(256, 512, stride=2),
+
+            # 5 repeated blocks with 512 channels
+            DepthwiseSeparableConv(512, 512, stride=1),
+            DepthwiseSeparableConv(512, 512, stride=1),
+            DepthwiseSeparableConv(512, 512, stride=1),
+            DepthwiseSeparableConv(512, 512, stride=1),
+            DepthwiseSeparableConv(512, 512, stride=1),
+
+            DepthwiseSeparableConv(512, 1024, stride=2),
+            DepthwiseSeparableConv(1024, 1024, stride=1),
+
+            nn.AvgPool2d(kernel_size=7)
+        )
+        self.fc = nn.Linear(1024, n_classes)
+
+    def forward(self, x):
+        x = self.model(x)
+        x = x.view(-1, 1024)  # flatten
+        x = self.fc(x)
+        return x
 
     
 if __name__ == '__main__':
@@ -319,10 +372,18 @@ if __name__ == '__main__':
     # print("Returned feature tensor shape:", features.shape)
 
     # Q4
-    print("\n=== Training ResNet18 with transfer learning (Q4) ===")
-    transfer_learning()
+    # print("\n=== Training ResNet18 with transfer learning (Q4) ===")
+    # transfer_learning()
 
     # Q5
-    # ch_in=3
-    # n_classes=1000
-    # model = MobileNetV1(ch_in=ch_in, n_classes=n_classes)
+    print("\n=== Testing MobileNetV1 structure (Q5) ===")
+    ch_in = 3
+    n_classes = 1000
+    model = MobileNetV1(ch_in=ch_in, n_classes=n_classes)
+
+    # create a dummy input image (batch_size=1, 3x224x224)
+    x = torch.randn(1, 3, 224, 224)
+
+    # forward pass
+    out = model(x)
+    print("Output shape:", out.shape)
