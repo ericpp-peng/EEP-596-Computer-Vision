@@ -215,10 +215,81 @@ def backbone():
     print("Feature shape:", features.shape)
     return features
 
-# def transfer_learning():
-#     """
-#     Insert your code here, Q4
-#     """
+def transfer_learning():
+    """Q4: Fine-tune only the last layer of pretrained ResNet18 on CIFAR-10"""
+    from torchvision import models
+
+    # 1. Load pretrained ResNet18 model
+    model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+
+    # 2. Freeze all layers (do not update gradients)
+    for param in model.parameters():
+        param.requires_grad = False
+
+    # 3. Modify the last fully connected layer for CIFAR-10 (10 classes)
+    num_ftrs = model.fc.in_features
+    model.fc = nn.Linear(num_ftrs, 10)
+
+    # 4. Move model to device
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+
+    # 5. Define loss function and optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.fc.parameters(), lr=0.001, momentum=0.9)
+
+    # 6. Prepare CIFAR-10 dataset
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
+    trainset = torchvision.datasets.CIFAR10(
+        root="./cifar10/", train=True, download=True, transform=transform)
+    trainloader = torch.utils.data.DataLoader(
+        trainset, batch_size=4, shuffle=True, num_workers=2)
+
+    testset = torchvision.datasets.CIFAR10(
+        root="./cifar10/", train=False, download=True, transform=transform)
+    testloader = torch.utils.data.DataLoader(
+        testset, batch_size=4, shuffle=False, num_workers=2)
+
+    # 7. Train for 10 epochs
+    for epoch in range(10):
+        running_loss = 0.0
+        for i, data in enumerate(trainloader, 0):
+            inputs, labels = data[0].to(device), data[1].to(device)
+
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item()
+            if i % 2000 == 1999:
+                print(f"[Epoch {epoch+1}, Batch {i+1}] loss: {running_loss/2000:.3f}")
+                running_loss = 0.0
+
+    print("Finished fine-tuning last layer.")
+
+    # 8. Save model weights
+    PATH = "./Res_net_10epoch.pth"
+    torch.save(model.state_dict(), PATH)
+    print(f"Saved model to {PATH}")
+
+    # 9. Evaluate accuracy
+    model.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for data in testloader:
+            images, labels = data[0].to(device), data[1].to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    print(f"Accuracy on 10000 test images: {100 * correct / total:.2f}%")
 
 # class MobileNetV1(nn.Module):
 #     """Define MobileNetV1 please keep the strucutre of the class Q5"""
@@ -243,9 +314,13 @@ if __name__ == '__main__':
     # eval_GAPNet()
 
     # Q3
-    print("\n=== Extracting features using ResNet18 backbone (Q3) ===")
-    features = backbone()
-    print("Returned feature tensor shape:", features.shape)
+    # print("\n=== Extracting features using ResNet18 backbone (Q3) ===")
+    # features = backbone()
+    # print("Returned feature tensor shape:", features.shape)
+
+    # Q4
+    print("\n=== Training ResNet18 with transfer learning (Q4) ===")
+    transfer_learning()
 
     # Q5
     # ch_in=3
