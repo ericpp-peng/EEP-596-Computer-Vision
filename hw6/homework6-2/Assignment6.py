@@ -13,84 +13,84 @@ def compute_num_parameters(net:nn.Module):
     """compute the number of trainable parameters in *net* e.g., ResNet-34.  
     Return the estimated number of parameters Q1. 
     """
-    num_para =
+    num_para = sum(p.numel() for p in net.parameters() if p.requires_grad)
     return num_para
 
 
-def CIFAR10_dataset_a():
+# def CIFAR10_dataset_a():
 
-    transform = transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
-    )
+#     transform = transforms.Compose(
+#         [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+#     )
 
-    batch_size = 4
+#     batch_size = 4
 
-    trainset = torchvision.datasets.CIFAR10(
-        root="./cifar10/", train=True, download=True, transform=transform
-    )
-    trainloader = torch.utils.data.DataLoader(
-        trainset, batch_size=batch_size, shuffle=True, num_workers=2
-    )
+#     trainset = torchvision.datasets.CIFAR10(
+#         root="./cifar10/", train=True, download=True, transform=transform
+#     )
+#     trainloader = torch.utils.data.DataLoader(
+#         trainset, batch_size=batch_size, shuffle=True, num_workers=2
+#     )
 
-    testset = torchvision.datasets.CIFAR10(
-        root="./cifar10/", train=False, download=True, transform=transform
-    )
-    testloader = torch.utils.data.DataLoader(
-        testset, batch_size=batch_size, shuffle=False, num_workers=2
-    )
+#     testset = torchvision.datasets.CIFAR10(
+#         root="./cifar10/", train=False, download=True, transform=transform
+#     )
+#     testloader = torch.utils.data.DataLoader(
+#         testset, batch_size=batch_size, shuffle=False, num_workers=2
+#     )
 
-    classes = (
-        "plane",
-        "car",
-        "bird",
-        "cat",
-        "deer",
-        "dog",
-        "frog",
-        "horse",
-        "ship",
-        "truck",
-    )
+#     classes = (
+#         "plane",
+#         "car",
+#         "bird",
+#         "cat",
+#         "deer",
+#         "dog",
+#         "frog",
+#         "horse",
+#         "ship",
+#         "truck",
+#     )
 
-    dataiter = iter(trainloader)
-    images, labels = next(dataiter)
-    return images, labels
-
-
-class GAPNet(nn.Module):
-    """
-    Insert your code here
-    """
+#     dataiter = iter(trainloader)
+#     images, labels = next(dataiter)
+#     return images, labels
 
 
-def train_GAPNet():
-    """
-    Insert your code here
-    """
+# class GAPNet(nn.Module):
+#     """
+#     Insert your code here
+#     """
 
 
-def eval_GAPNet():
-    """
-    Insert your code here
-    """
-
-def backbone():
-    """
-    Insert your code here, Q3
-    """
-    return features
-
-def transfer_learning():
-    """
-    Insert your code here, Q4
-    """
-
-class MobileNetV1(nn.Module):
-    """Define MobileNetV1 please keep the strucutre of the class Q5"""
-    def __init__(self, ch_in, n_classes):
+# def train_GAPNet():
+#     """
+#     Insert your code here
+#     """
 
 
-    def forward(self, x):
+# def eval_GAPNet():
+#     """
+#     Insert your code here
+#     """
+
+# def backbone():
+#     """
+#     Insert your code here, Q3
+#     """
+#     return features
+
+# def transfer_learning():
+#     """
+#     Insert your code here, Q4
+#     """
+
+# class MobileNetV1(nn.Module):
+#     """Define MobileNetV1 please keep the strucutre of the class Q5"""
+#     def __init__(self, ch_in, n_classes):
+
+
+#     def forward(self, x):
 
     
 if __name__ == '__main__':
@@ -98,7 +98,8 @@ if __name__ == '__main__':
     from torchvision import models
     resnet34 = models.resnet34(pretrained=True)
     num_para = compute_num_parameters(resnet34)
+    print(num_para)
     # Q5
-    ch_in=3
-    n_classes=1000
-    model = MobileNetV1(ch_in=ch_in, n_classes=n_classes)
+    # ch_in=3
+    # n_classes=1000
+    # model = MobileNetV1(ch_in=ch_in, n_classes=n_classes)
