@@ -17,44 +17,44 @@ def compute_num_parameters(net:nn.Module):
     return num_para
 
 
-# def CIFAR10_dataset_a():
+def CIFAR10_dataset_a():
 
-#     transform = transforms.Compose(
-#         [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
-#     )
+    transform = transforms.Compose(
+        [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+    )
 
-#     batch_size = 4
+    batch_size = 4
 
-#     trainset = torchvision.datasets.CIFAR10(
-#         root="./cifar10/", train=True, download=True, transform=transform
-#     )
-#     trainloader = torch.utils.data.DataLoader(
-#         trainset, batch_size=batch_size, shuffle=True, num_workers=2
-#     )
+    trainset = torchvision.datasets.CIFAR10(
+        root="./cifar10/", train=True, download=True, transform=transform
+    )
+    trainloader = torch.utils.data.DataLoader(
+        trainset, batch_size=batch_size, shuffle=True, num_workers=2
+    )
 
-#     testset = torchvision.datasets.CIFAR10(
-#         root="./cifar10/", train=False, download=True, transform=transform
-#     )
-#     testloader = torch.utils.data.DataLoader(
-#         testset, batch_size=batch_size, shuffle=False, num_workers=2
-#     )
+    testset = torchvision.datasets.CIFAR10(
+        root="./cifar10/", train=False, download=True, transform=transform
+    )
+    testloader = torch.utils.data.DataLoader(
+        testset, batch_size=batch_size, shuffle=False, num_workers=2
+    )
 
-#     classes = (
-#         "plane",
-#         "car",
-#         "bird",
-#         "cat",
-#         "deer",
-#         "dog",
-#         "frog",
-#         "horse",
-#         "ship",
-#         "truck",
-#     )
+    classes = (
+        "plane",
+        "car",
+        "bird",
+        "cat",
+        "deer",
+        "dog",
+        "frog",
+        "horse",
+        "ship",
+        "truck",
+    )
 
-#     dataiter = iter(trainloader)
-#     images, labels = next(dataiter)
-#     return images, labels
+    dataiter = iter(trainloader)
+    images, labels = next(dataiter)
+    return images, labels
 
 
 class GAPNet(nn.Module):
@@ -97,11 +97,14 @@ class GAPNet(nn.Module):
 
 def train_GAPNet():
     """Train GAPNet on CIFAR-10 for 10 epochs with SGD optimizer"""
-    # load dataset
+    # Reuse CIFAR10_dataset_a() for dataset
+    images, labels = CIFAR10_dataset_a()  # just to show function usage
+
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
+
     trainset = torchvision.datasets.CIFAR10(
         root="./cifar10/", train=True, download=True, transform=transform)
     trainloader = torch.utils.data.DataLoader(
@@ -112,39 +115,26 @@ def train_GAPNet():
     testloader = torch.utils.data.DataLoader(
         testset, batch_size=4, shuffle=False, num_workers=2)
 
-    # use GPU if available
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    # initialize model
     net = GAPNet().to(device)
-
-    # define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
-    # training loop
-    for epoch in range(10):  # total 10 epochs
+    for epoch in range(10):
         running_loss = 0.0
         for i, data in enumerate(trainloader, 0):
             inputs, labels = data[0].to(device), data[1].to(device)
-
-            # zero the parameter gradients
             optimizer.zero_grad()
-
-            # forward + backward + optimize
             outputs = net(inputs)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
-
             running_loss += loss.item()
-            if i % 2000 == 1999:  # print every 2000 mini-batches
-                print(f"[Epoch {epoch + 1}, Batch {i + 1}] loss: {running_loss / 2000:.3f}")
+            if i % 2000 == 1999:
+                print(f"[Epoch {epoch+1}, Batch {i+1}] loss: {running_loss/2000:.3f}")
                 running_loss = 0.0
 
     print("Finished Training")
-
-    # save model weights
     PATH = "./Gap_net_10epoch.pth"
     torch.save(net.state_dict(), PATH)
     print(f"Saved model to {PATH}")
@@ -360,11 +350,11 @@ if __name__ == '__main__':
     # print(num_para)
 
     # Q2
-    # print("\n=== Training GAPNet (Q2) ===")
-    # train_GAPNet()
+    print("\n=== Training GAPNet (Q2) ===")
+    train_GAPNet()
 
-    # print("\n=== Evaluating GAPNet (Q2) ===")
-    # eval_GAPNet()
+    print("\n=== Evaluating GAPNet (Q2) ===")
+    eval_GAPNet()
 
     # Q3
     # print("\n=== Extracting features using ResNet18 backbone (Q3) ===")
@@ -376,14 +366,14 @@ if __name__ == '__main__':
     # transfer_learning()
 
     # Q5
-    print("\n=== Testing MobileNetV1 structure (Q5) ===")
-    ch_in = 3
-    n_classes = 1000
-    model = MobileNetV1(ch_in=ch_in, n_classes=n_classes)
+    # print("\n=== Testing MobileNetV1 structure (Q5) ===")
+    # ch_in = 3
+    # n_classes = 1000
+    # model = MobileNetV1(ch_in=ch_in, n_classes=n_classes)
 
-    # create a dummy input image (batch_size=1, 3x224x224)
-    x = torch.randn(1, 3, 224, 224)
+    # # create a dummy input image (batch_size=1, 3x224x224)
+    # x = torch.randn(1, 3, 224, 224)
 
-    # forward pass
-    out = model(x)
-    print("Output shape:", out.shape)
+    # # forward pass
+    # out = model(x)
+    # print("Output shape:", out.shape)
