@@ -178,11 +178,42 @@ def eval_GAPNet():
 
     print(f"Accuracy on 10000 test images: {100 * correct / total:.2f}%")
 
-# def backbone():
-#     """
-#     Insert your code here, Q3
-#     """
-#     return features
+def backbone():
+    """Q3: Load pretrained ResNet18 and extract features from cat_eye.jpg"""
+    from torchvision import models
+    from PIL import Image
+
+    # Load pretrained ResNet18 backbone
+    resnet18 = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+    resnet18.eval()
+
+    # Remove the final fully connected layer (classifier)
+    backbone = nn.Sequential(*list(resnet18.children())[:-1])
+
+    # Load input image
+    img_path = "cat_eye.jpg"
+    img = Image.open(img_path).convert("RGB")
+
+    # Define preprocessing transforms (same as ImageNet normalization)
+    transform = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225]
+        )
+    ])
+
+    # Apply transform and add batch dimension
+    input_tensor = transform(img).unsqueeze(0)
+
+    # Forward pass through the backbone to get feature maps
+    with torch.no_grad():
+        features = backbone(input_tensor)
+
+    print("Feature shape:", features.shape)
+    return features
 
 # def transfer_learning():
 #     """
@@ -205,11 +236,16 @@ if __name__ == '__main__':
     # print(num_para)
 
     # Q2
-    print("\n=== Training GAPNet (Q2) ===")
-    train_GAPNet()
+    # print("\n=== Training GAPNet (Q2) ===")
+    # train_GAPNet()
 
-    print("\n=== Evaluating GAPNet (Q2) ===")
-    eval_GAPNet()
+    # print("\n=== Evaluating GAPNet (Q2) ===")
+    # eval_GAPNet()
+
+    # Q3
+    print("\n=== Extracting features using ResNet18 backbone (Q3) ===")
+    features = backbone()
+    print("Returned feature tensor shape:", features.shape)
 
     # Q5
     # ch_in=3
