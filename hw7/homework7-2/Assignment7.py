@@ -6,6 +6,8 @@ import torch.nn as nn
 from scipy.signal import convolve2d  # TODO: use torch.nn.functional
 import os
 
+os.makedirs("figure", exist_ok=True)
+
 # region DEBUG
 DEBUG = False
 
@@ -139,10 +141,54 @@ def smoothing(tb_right, max_d: int = 30, kernel_size: int = 5):
     return smoothed_auto
 
 
-# def cross_correlation(tb_left, tb_right):
+def cross_correlation(tb_left, tb_right, max_d: int = 30, kernel_size: int = 5):
+    """
+    Compute smoothed cross-correlation at pixel (152,152)
+    by comparing the LEFT image with shifted RIGHT images.
+    """
+    cross_corr = []
+
+    for d in range(max_d + 1):
+        shifted_right = shift_array(tb_right, d)
+        abs_diff_image = np.abs(tb_left - shifted_right)
+        smoothed = convolve2d_torch(abs_diff_image, kernel_size)
+        cross_corr.append(smoothed[152, 152])
+
+    if DEBUG:
+        plot_1d_array(cross_corr,
+                      "smoothed_cross_correlation",
+                      xlabel="disparity d",
+                      ylabel="abs diff")
+
+    return cross_corr
 
 
-# def disparity_map(
+def disparity_map(tb_left, tb_right, max_d: int = 30, kernel_size: int = 5, plot_result=False):
+    """
+    Compute left-to-right disparity map using smoothed cross-correlation.
+    For each pixel (x,y), find the disparity d that minimizes:
+        | tb_left(x,y) - shifted_right(x,y,d) | (smoothed with 5x5 filter)
+    """
+    H, W = tb_left.shape
+    cost_volume = np.zeros((H, W, max_d + 1), dtype=np.float32)
+
+    for d in range(max_d + 1):
+        shifted_right = shift_array(tb_right, d)
+
+        abs_diff = np.abs(tb_left.astype(np.float32) - shifted_right.astype(np.float32))
+        smoothed = convolve2d_torch(abs_diff, kernel_size)
+
+        cost_volume[:, :, d] = smoothed
+
+    # argmin over disparity dimension
+    disp = np.argmin(cost_volume, axis=2).astype(np.uint8)
+
+    if plot_result:
+        disp_vis = (disp.astype(np.float32) / max_d * 255).astype(np.uint8)
+        plot_2d_array_as_image(disp_vis, "disparity_left_to_right")
+
+    return disp
+
 
 
 # def right_left_disparity(tb_left, tb_right, plot_result=False):
@@ -164,7 +210,7 @@ if __name__ == "__main__":
     scanlines(tb_left, tb_right)
     auto_correlation(tb_right)
     smoothing(tb_right)
-    # cross_correlation(tb_left, tb_right)
-    # disparity_map(tb_left, tb_right, plot_result=True)
+    cross_correlation(tb_left, tb_right)
+    disparity_map(tb_left, tb_right, plot_result=True)
     # right_left_disparity(tb_left, tb_right, plot_result=True)
     # disparity_check(tb_left, tb_right)
