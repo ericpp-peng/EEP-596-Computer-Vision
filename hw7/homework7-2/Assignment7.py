@@ -31,20 +31,33 @@ def sum_of_abs_diff(nparray1: np.array, nparray2: np.array) -> int:
     return (np.abs(nparray1 - nparray2)).sum().item()
 
 
-def scanlines(tb_left: np.array, tb_right: np.array):
+def scanlines(tb_left: np.array, tb_right: np.array, max_d: int = 30):
     row_idx = 152
     col_idx1 = 102
     col_len = 100
-    tb_left_cropped = tb_left[row_idx][col_idx1 : col_idx1 + col_len]
+
+    # left scanline: fixed window
+    tb_left_cropped = tb_left[row_idx, col_idx1 : col_idx1 + col_len]
 
     g_best = None
-    d_best = None
-    for d in range(col_len + 1):  # TODO: check max disparity
-        tb_right_cropped = tb_right[row_idx][col_idx1 - d : col_idx1 - d + col_len]
+    d_best = 0
+
+    # disparity d: how much the right image is shifted to the right
+    # so the corresponding point in the right image is at x - d
+    for d in range(max_d + 1):
+        start = col_idx1 - d
+        end = start + col_len
+        # avoid negative index or going out of bounds
+        if start < 0 or end > tb_right.shape[1]:
+            continue
+
+        tb_right_cropped = tb_right[row_idx, start:end]
         g = sum_of_abs_diff(tb_left_cropped, tb_right_cropped)
-        if g_best == None or g < g_best:
+
+        if g_best is None or g < g_best:
             g_best, d_best = g, d
 
+    print("Best disparity at row 152:", d_best, "with SAD", g_best)
     return d_best
 
 
@@ -98,46 +111,60 @@ def auto_correlation(tb_right):
     return auto_correlations
 
 
-# TODO
 def convolve2d_torch(array: np.array, kernel_size: int):
     as_tensor = torch.tensor(array, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
-    kernel = torch.tensor(np.ones((kernel_size, kernel_size))).unsqueeze(0).unsqueeze(0)
+    kernel = torch.ones((1, 1, kernel_size, kernel_size), dtype=torch.float32)
     convolved = nn.functional.conv2d(as_tensor, kernel, padding=kernel_size // 2)
     if DEBUG:
         assert convolved.shape == as_tensor.shape
 
     return np.array(convolved.squeeze().squeeze())
 
+def smoothing(tb_right, max_d: int = 30, kernel_size: int = 5):
+    """
+    Compute smoothed auto-correlation at pixel (152,152)
+    by applying a box filter to each absolute-difference image.
+    """
+    smoothed_auto = []
+    for d in range(max_d + 1):
+        shifted = shift_array(tb_right, d)
+        abs_diff_image = np.abs(tb_right - shifted)
+        smoothed = convolve2d_torch(abs_diff_image, kernel_size)
+        smoothed_auto.append(smoothed[152, 152])
 
-def smoothing(tb_right):
+    if DEBUG:
+        plot_1d_array(smoothed_auto, "smoothed_auto_correlation",
+                      xlabel="disparity d", ylabel="value")
+
+    return smoothed_auto
 
 
-def cross_correlation(tb_left, tb_right):
+# def cross_correlation(tb_left, tb_right):
 
 
-def disparity_map(
+# def disparity_map(
 
 
-def right_left_disparity(tb_left, tb_right, plot_result=False):
-
-
-
-def disparity_check(tb_left, tb_right):
+# def right_left_disparity(tb_left, tb_right, plot_result=False):
 
 
 
-def reconstruction(tb_left, tb_right):
-    # Fill your code hear
-    pass
+# def disparity_check(tb_left, tb_right):
+
+
+
+# def reconstruction(tb_left, tb_right):
+#     # Fill your code hear
+#     pass
 
 
 if __name__ == "__main__":
     tb_left = load_image_in_grayscale("tsukuba_left.png")
     tb_right = load_image_in_grayscale("tsukuba_right.png")
-    # scanlines(tb_left, tb_right)
-    # auto_correlation(tb_right)
-    # smoothing(tb_right)
+    scanlines(tb_left, tb_right)
+    auto_correlation(tb_right)
+    smoothing(tb_right)
     # cross_correlation(tb_left, tb_right)
     # disparity_map(tb_left, tb_right, plot_result=True)
     # right_left_disparity(tb_left, tb_right, plot_result=True)
-    disparity_check(tb_left, tb_right)
+    # disparity_check(tb_left, tb_right)
