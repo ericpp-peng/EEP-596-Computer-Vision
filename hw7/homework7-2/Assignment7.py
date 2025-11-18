@@ -191,17 +191,139 @@ def disparity_map(tb_left, tb_right, max_d: int = 30, kernel_size: int = 5, plot
 
 
 
-# def right_left_disparity(tb_left, tb_right, plot_result=False):
+def right_left_disparity(tb_left, tb_right, max_d: int = 30, kernel_size: int = 5, plot_result=False):
+    """
+    Compute right-to-left disparity map.
+    For each pixel (x,y) in the RIGHT image, find disparity d such that:
+        right(x,y) ≈ left(x + d, y)
+    Implementation:
+        - Shift LEFT image to the LEFT by d (i.e., shift_array(left, -d))
+        - Compute | right - shifted_left |
+        - Apply 5x5 smoothing
+        - Argmin over d
+        - Return disparity as NEGATIVE values (for Q8 consistency check)
+    """
+    H, W = tb_right.shape
+    cost_volume = np.zeros((H, W, max_d + 1), dtype=np.float32)
+
+    for d in range(max_d + 1):
+        # Shift left image to the LEFT by d
+        shifted_left = shift_array(tb_left, d)
+
+        abs_diff = np.abs(tb_right.astype(np.float32) - shifted_left.astype(np.float32))
+        smoothed = convolve2d_torch(abs_diff, kernel_size)
+
+        cost_volume[:, :, d] = smoothed
+
+    # argmin returns the disparity index that gives lowest cost
+    best_d = np.argmin(cost_volume, axis=2).astype(np.int16)
+
+    # IMPORTANT: right-left disparity should be NEGATIVE
+    disp_R = -best_d
+
+    if plot_result:
+        disp_vis = (best_d.astype(np.float32) / max_d * 255).astype(np.uint8)
+        plot_2d_array_as_image(disp_vis, "disparity_right_to_left_magnitude")
+
+    return disp_R
 
 
 
-# def disparity_check(tb_left, tb_right):
+
+def disparity_check(tb_left, tb_right, max_d: int = 30, kernel_size: int = 5, plot_result=False):
+    """
+    Left-Right consistency check.
+    Keep disparity dL(x,y) only if dR(x-d, y) = -dL(x,y).
+    Otherwise set the disparity to 0.
+    """
+    # Compute both disparity maps
+    dL = disparity_map(tb_left, tb_right, max_d=max_d, kernel_size=kernel_size, plot_result=False)
+    dR = right_left_disparity(tb_left, tb_right, max_d=max_d, kernel_size=kernel_size, plot_result=False)
+
+    H, W = dL.shape
+    clean = np.zeros_like(dL, dtype=np.uint8)
+
+    for y in range(H):
+        for x in range(W):
+            d = int(dL[y, x])
+            if d == 0:
+                continue
+
+            xr = x - d  # location in right image
+            if xr < 0 or xr >= W:
+                continue
+
+            # The Q7 disparity is negative by design (-best_d)
+            if int(dR[y, xr]) == -d:
+                clean[y, x] = d
+
+    if plot_result:
+        disp_vis = (clean.astype(np.float32) / max_d * 255).astype(np.uint8)
+        plot_2d_array_as_image(disp_vis, "disparity_cleaned")
+
+    return clean
 
 
 
-# def reconstruction(tb_left, tb_right):
-#     # Fill your code hear
-#     pass
+
+def reconstruction(tb_left, tb_right, max_d: int = 30, kernel_size: int = 5,
+                   ply_filename: str = "kermit.ply"):
+    """
+    Use the cleaned disparity map to create a 3D point cloud and save as a PLY file.
+    Each valid pixel becomes one vertex: x y z r g b.
+    """
+    # 1. Get cleaned disparity map
+    clean_disp = disparity_check(tb_left, tb_right, max_d=max_d,
+                                 kernel_size=kernel_size, plot_result=False)
+
+    H, W = clean_disp.shape
+
+    # 2. Load left color image for colors
+    color_left = cv.imread("tsukuba_left.png", cv.IMREAD_COLOR)  # BGR
+    if color_left is None:
+        raise FileNotFoundError("Cannot load tsukuba_left.png for color info")
+    color_left = cv.cvtColor(color_left, cv.COLOR_BGR2RGB)
+
+    # 3. Simple camera model (orthographic-ish)
+    f = 1.0   # focal length (arbitrary units)
+    B = 1.0   # baseline (arbitrary units)
+    cx = W / 2.0
+    cy = H / 2.0
+
+    points = []
+
+    for y in range(H):
+        for x in range(W):
+            d = float(clean_disp[y, x])
+            if d <= 0.0:
+                continue  # skip invalid or zero disparity
+
+            Z = f * B / d          # depth ~ 1 / disparity
+            X = (x - cx) * Z
+            Y = -(y - cy) * Z      # negative so that image y-axis goes upward
+
+            r, g, b = color_left[y, x]
+            points.append((X, Y, Z, int(r), int(g), int(b)))
+
+    # 4. Write PLY file
+    with open(ply_filename, "w") as f_out:
+        f_out.write("ply\n")
+        f_out.write("format ascii 1.0\n")
+        f_out.write(f"element vertex {len(points)}\n")
+        f_out.write("property float x\n")
+        f_out.write("property float y\n")
+        f_out.write("property float z\n")
+        f_out.write("property uchar red\n")
+        f_out.write("property uchar green\n")
+        f_out.write("property uchar blue\n")
+        f_out.write("end_header\n")
+
+        for X, Y, Z, r, g, b in points:
+            f_out.write(f"{X} {Y} {Z} {r} {g} {b}\n")
+
+    print(f"Saved point cloud with {len(points)} points to {ply_filename}")
+    return ply_filename
+
 
 
 if __name__ == "__main__":
@@ -212,5 +334,7 @@ if __name__ == "__main__":
     smoothing(tb_right)
     cross_correlation(tb_left, tb_right)
     disparity_map(tb_left, tb_right, plot_result=True)
-    # right_left_disparity(tb_left, tb_right, plot_result=True)
-    # disparity_check(tb_left, tb_right)
+    right_left_disparity(tb_left, tb_right, plot_result=True)
+    clean = disparity_check(tb_left, tb_right, plot_result=True)
+    # Q9: 3D reconstruction
+    reconstruction(tb_left, tb_right)
