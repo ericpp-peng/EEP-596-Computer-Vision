@@ -22,24 +22,23 @@
 ## 📁 專案結構
 
 ```
-final-project/
-├── badminton_analysis.py       # 主程式 (完整版)
-├── quick_test.py               # 快速測試版 (最小可行)
+final-project/claude/
+├── pose_analysis.py            # 主程式（簡化版 MVP）
 ├── court_calibration.py        # 球場標定工具
-├── train_shuttlecock.py        # 羽球模型訓練 (選用)
+├── shuttlecock_detector.py     # 羽球偵測器（預留完整版用）
+├── train_shuttlecock.py        # 羽球模型訓練腳本（完整版用）
 │
-├── README_MVP.md               # 詳細指南
-├── CHECKLIST.md                # 執行檢查清單
+├── README.md                   # 本文件（專案說明）
+├── SIMPLIFIED_GUIDE.md         # 簡化版使用指南
+├── ANNOTATION_GUIDE.md         # 羽球標注指南（完整版用）
+├── SUMMARY_SIMPLIFIED.md       # 專案總結與 Demo 準備
 │
-├── 20250711_short.mp4          # 輸入影片 (你的羽球影片)
-├── court_corners.pkl           # 球場角點資料 (執行 calibration 後生成)
+├── 20250711_short.mp4          # 輸入影片（未上傳 git）
+├── court_corners.pkl           # 球場角點資料（執行後生成）
 │
-├── yolov8n.pt                  # YOLO 偵測模型
-├── yolov8n-pose.pt             # YOLO pose 模型
+├── yolov8n-pose.pt             # YOLO pose 模型（自動下載）
 │
-└── outputs/
-    ├── quick_test_output.mp4           # 快速測試輸出
-    └── badminton_analysis_output.mp4   # 完整分析輸出
+└── pose_analysis_output.mp4    # 輸出影片（未上傳 git）
 ```
 
 ## 🎯 目前已實作功能（簡化版）

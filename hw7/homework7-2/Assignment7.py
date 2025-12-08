@@ -329,12 +329,142 @@ def reconstruction(tb_left, tb_right, max_d: int = 30, kernel_size: int = 5,
 if __name__ == "__main__":
     tb_left = load_image_in_grayscale("tsukuba_left.png")
     tb_right = load_image_in_grayscale("tsukuba_right.png")
-    scanlines(tb_left, tb_right)
-    auto_correlation(tb_right)
-    smoothing(tb_right)
-    cross_correlation(tb_left, tb_right)
-    disparity_map(tb_left, tb_right, plot_result=True)
-    right_left_disparity(tb_left, tb_right, plot_result=True)
-    clean = disparity_check(tb_left, tb_right, plot_result=True)
-    # Q9: 3D reconstruction
-    reconstruction(tb_left, tb_right)
+
+    os.makedirs("figure", exist_ok=True)
+
+    # -----------------------------
+    # Task 1: Rectification check
+    # -----------------------------
+    stacked = np.hstack((tb_left, tb_right))
+    plt.imshow(stacked, cmap="gray")
+    plt.title("Rectified stereo pair (left | right)")
+    plt.axis("off")
+    plt.savefig("figure/task1_rectified_check.png", bbox_inches="tight")
+    plt.close()
+
+    # -----------------------------
+    # Task 2: Scanline SAD (row 152)
+    # -----------------------------
+    row = 152
+    col_start = 102
+    col_len = 100
+    left_strip = tb_left[row, col_start:col_start + col_len]
+
+    sad_vals = []
+    best_d = None
+    best_sad = None
+    max_d = 30
+    for d in range(max_d + 1):
+        start = col_start - d
+        end = start + col_len
+        if start < 0 or end > tb_right.shape[1]:
+            sad_vals.append(np.nan)
+            continue
+        right_strip = tb_right[row, start:end]
+        sad = np.abs(left_strip.astype(np.float32) -
+                     right_strip.astype(np.float32)).sum()
+        sad_vals.append(sad)
+        if best_sad is None or sad < best_sad:
+            best_sad = sad
+            best_d = d
+
+    print(f"Best disparity at row 152 from SAD curve: d = {best_d}, SAD = {best_sad}")
+
+    plt.plot(range(len(sad_vals)), sad_vals, marker="o")
+    plt.xlabel("disparity d")
+    plt.ylabel("SAD")
+    plt.title("Scanline SAD at row 152")
+    plt.grid(True)
+    plt.savefig("figure/task2_scanline_sad.png", bbox_inches="tight")
+    plt.close()
+
+    # -----------------------------
+    # Task 3: Auto-correlation
+    # -----------------------------
+    ac = auto_correlation(tb_right)
+    plt.plot(range(len(ac)), ac, marker="o")
+    plt.xlabel("disparity d")
+    plt.ylabel("abs difference")
+    plt.title("Auto-correlation at (152,152)")
+    plt.grid(True)
+    plt.savefig("figure/task3_auto_correlation.png", bbox_inches="tight")
+    plt.close()
+
+    # -----------------------------
+    # Task 4: Smoothed auto-correlation
+    # -----------------------------
+    sm = smoothing(tb_right)
+    plt.plot(range(len(sm)), sm, marker="o")
+    plt.xlabel("disparity d")
+    plt.ylabel("smoothed abs diff")
+    plt.title("Smoothed auto-correlation at (152,152)")
+    plt.grid(True)
+    plt.savefig("figure/task4_smoothed_auto_correlation.png",
+                bbox_inches="tight")
+    plt.close()
+
+    # -----------------------------
+    # Task 5: Cross-correlation
+    # -----------------------------
+    cc = cross_correlation(tb_left, tb_right)
+    plt.plot(range(len(cc)), cc, marker="o")
+    plt.xlabel("disparity d")
+    plt.ylabel("smoothed abs diff")
+    plt.title("Cross-correlation at (152,152)")
+    plt.grid(True)
+    plt.savefig("figure/task5_cross_correlation.png", bbox_inches="tight")
+    plt.close()
+
+    # -----------------------------
+    # Task 6: Left -> Right disparity map
+    # -----------------------------
+    disp_L = disparity_map(tb_left, tb_right,
+                           max_d=30, kernel_size=5, plot_result=False)
+    disp_L_vis = (disp_L.astype(np.float32) / 30 * 255).astype(np.uint8)
+    plt.imshow(disp_L_vis, cmap="gray")
+    plt.title("Disparity L→R")
+    plt.axis("off")
+    plt.savefig("figure/task6_disparity_L2R.png", bbox_inches="tight")
+    plt.close()
+
+    # -----------------------------
+    # Task 7: Right -> Left disparity map
+    # -----------------------------
+    disp_R = right_left_disparity(tb_left, tb_right,
+                                  max_d=30, kernel_size=5, plot_result=False)
+    disp_R_vis = (np.abs(disp_R).astype(np.float32) / 30 * 255).astype(np.uint8)
+    plt.imshow(disp_R_vis, cmap="gray")
+    plt.title("Disparity R→L (magnitude)")
+    plt.axis("off")
+    plt.savefig("figure/task7_disparity_R2L.png", bbox_inches="tight")
+    plt.close()
+
+    # -----------------------------
+    # Task 8: LR consistency check
+    # -----------------------------
+    clean = disparity_check(tb_left, tb_right,
+                            max_d=30, kernel_size=5, plot_result=False)
+    clean_vis = (clean.astype(np.float32) / 30 * 255).astype(np.uint8)
+    plt.imshow(clean_vis, cmap="gray")
+    plt.title("LR Consistency Cleaned Disparity")
+    plt.axis("off")
+    plt.savefig("figure/task8_lr_consistency_cleaned.png",
+                bbox_inches="tight")
+    plt.close()
+
+    # -----------------------------
+    # Task 9: 3D reconstruction (depth vis)
+    # -----------------------------
+    # 建立 point cloud (kermit.ply)
+    reconstruction(tb_left, tb_right, max_d=30, kernel_size=5,
+                   ply_filename="kermit.ply")
+
+    depth = clean.astype(np.float32)
+    depth[depth == 0] = np.nan
+    plt.imshow(depth, cmap="inferno")
+    plt.title("Reconstruction depth visualization")
+    plt.colorbar()
+    plt.axis("off")
+    plt.savefig("figure/task9_reconstruction_depth.png",
+                bbox_inches="tight")
+    plt.close()

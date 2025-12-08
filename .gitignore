@@ -115,3 +115,8 @@ test_*.png
 
 # 第三方 repository（已經是獨立的 git repo）
 Object-Tracking-with-DeepSORT_YOLOv8-and-ByteTrack/
+
+# Large dataset files
+cifar10/
+data/cifar-10-*
+*.tar.gz
