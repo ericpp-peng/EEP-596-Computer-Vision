@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
+import torch
 import torch.serialization
 from ultralytics import YOLO
+import time
 
 # Fix for PyTorch 2.6+ weights_only loading issue
 torch.serialization.add_safe_globals(['ultralytics.nn.tasks.PoseModel'])
@@ -168,6 +170,17 @@ def is_arm_raised(kpts):
 
 
 def main():
+    # === 設定 GPU 加速 (MPS for M4 Pro) ===
+    if torch.backends.mps.is_available():
+        device = 'mps'
+        print("✅ 使用 MPS (Metal) GPU 加速")
+    elif torch.cuda.is_available():
+        device = 'cuda'
+        print("✅ 使用 CUDA GPU 加速")
+    else:
+        device = 'cpu'
+        print("⚠️  使用 CPU")
+    
     # === 讀取球場 polygon ===
     court_pts = np.load(COURT_PTS_PATH)
     court_contour = court_pts.reshape((-1, 1, 2)).astype(np.int32)
@@ -205,14 +218,26 @@ def main():
     fps = cap.get(cv2.CAP_PROP_FPS)
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    print(f"Video FPS: {fps}, size: {w}x{h}")
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    print(f"Video FPS: {fps}, size: {w}x{h}, total frames: {total_frames}")
 
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    # 使用較低的品質以加快編碼速度
     out = cv2.VideoWriter(OUTPUT_PATH, fourcc, fps, (w, h))
+    if not out.isOpened():
+        print("⚠️  警告：無法創建輸出影片")
     print("Output will be saved to:", OUTPUT_PATH)
 
     # === YOLO Pose 抓人 + skeleton ===
+    print(f"載入模型: {YOLO_WEIGHTS}")
     people_model = YOLO(YOLO_WEIGHTS)
+    people_model.to(device)  # 將模型移到 GPU
+    
+    # 啟用 FP16 半精度運算（MPS 支援，可大幅加速）
+    if device == 'mps':
+        print("啟用 FP16 半精度運算以加速推論")
+    
+    print(f"模型已載入到: {device}")
 
     prev_gray = None
     last_ball = None
@@ -224,33 +249,55 @@ def main():
     shot_type = ""             # 擊球類型（暫定為 "Smash/Clear/Drop"）
     shot_display_timer = 0      # 顯示計時器（顯示 30 幀 = 約 1 秒）
 
+    # === 進度追蹤變數 ===
+    start_time = time.time()
+    last_progress_time = start_time
+    print("\n開始處理影片...")
+    print("="*60)
+
     while True:
         ret, frame = cap.read()
         if not ret:
             break
 
-        # 先畫球場 polygon
-        cv2.polylines(frame, [court_contour], isClosed=True, color=(255, 0, 0), thickness=2)
+        # 先畫球場 polygon（簡化線條粗細）
+        cv2.polylines(frame, [court_contour], isClosed=True, color=(255, 0, 0), thickness=1)
 
-        # 畫出「球的 x 範圍」兩條線（遠端左右線）
+        # 畫出「球的 x 範圍」兩條線（遠端左右線，更細的線）
         cv2.line(frame, (x_min_ball, 0), (x_min_ball, h - 1), (0, 255, 255), 1)
         cv2.line(frame, (x_max_ball, 0), (x_max_ball, h - 1), (0, 255, 255), 1)
 
         # --- 1) YOLO Pose 抓「人」 + skeleton ---
         person_boxes = []  # 存所有人的 bbox（不管在不在場內，用來過濾球）
 
-        results = people_model(frame, conf=0.5, imgsz=1280, verbose=False)
+        # 使用 GPU 加速推論（保持 640 解析度以維持品質）
+        results = people_model(
+            frame, 
+            conf=0.5, 
+            imgsz=640,  # 保持 640 以維持偵測品質
+            verbose=False, 
+            device=device,
+            half=True if device == 'mps' else False,
+            max_det=10,
+            agnostic_nms=True
+        )
         result = results[0]
 
         has_kpts = (getattr(result, "keypoints", None) is not None)
         if has_kpts:
-            # (num_person, num_kpts, 2) 的 tensor
-            kpts_all = result.keypoints.xy
+            # 直接在 GPU 上操作，減少 CPU-GPU 資料傳輸
+            kpts_all = result.keypoints.xy  # 保持在 GPU 上
         else:
             kpts_all = None
 
         # 先收集所有人的資訊
         all_persons = []  # 存所有人的資訊 (index, bbox, conf, in_court)
+        
+        # 一次性將所有 keypoints 轉到 CPU（減少重複轉換）
+        if has_kpts and len(kpts_all) > 0:
+            kpts_all_cpu = kpts_all.cpu().numpy()
+        else:
+            kpts_all_cpu = None
         
         for i, box in enumerate(result.boxes):
             cls_id = int(box.cls[0])
@@ -269,8 +316,8 @@ def main():
             bl = (x1i, y2i)  # 預設用 bbox 底部
             br = (x2i, y2i)
             
-            if has_kpts and i < len(kpts_all):
-                kpts = kpts_all[i].cpu().numpy()  # (17, 2)
+            if kpts_all_cpu is not None and i < len(kpts_all_cpu):
+                kpts = kpts_all_cpu[i]  # 使用預先轉換的 CPU 版本
                 # COCO keypoints: 15=左腳踝, 16=右腳踝
                 left_ankle = kpts[15]   # (x, y)
                 right_ankle = kpts[16]  # (x, y)
@@ -310,13 +357,6 @@ def main():
         selected_person = None
         persons_in_court = [p for p in all_persons if p['in_court']]
         
-        # Debug: 打印所有人的資訊
-        if frame_idx % 30 == 0 and all_persons:  # 每30幀打印一次
-            print(f"\n=== Frame {frame_idx} ===")
-            for idx, p in enumerate(all_persons):
-                print(f"Person {idx}: in_court={p['in_court']}, area={p['area']}, conf={p['conf']:.2f}")
-            print(f"Persons in court: {len(persons_in_court)}")
-        
         if persons_in_court:
             # 優先：有人在場內，選其中面積最大的
             selected_person = max(persons_in_court, key=lambda p: p['area'])
@@ -326,9 +366,9 @@ def main():
         
         # === 手臂動作偵測（只對選中的人做） ===
         current_arm_raised = False
-        if selected_person and has_kpts:
+        if selected_person and kpts_all_cpu is not None:
             i = selected_person['index']
-            kpts = kpts_all[i].cpu().numpy()
+            kpts = kpts_all_cpu[i]  # 使用預先轉換的版本
             current_arm_raised = is_arm_raised(kpts)
             
             # 偵測「抬起 → 放下」的動作
@@ -337,7 +377,7 @@ def main():
                 shot_detected = True
                 shot_type = "Smash / Clear / Drop"
                 shot_display_timer = 30  # 顯示 30 幀
-                print(f"🎾 Frame {frame_idx}: 偵測到擊球動作！")
+                # print(f"🎾 Frame {frame_idx}: 偵測到擊球動作！")  # 註解掉，避免過多輸出
             
             arm_was_raised = current_arm_raised
         
@@ -365,8 +405,8 @@ def main():
                         color, 2)
 
             # 2) 對選中的人畫 skeleton
-            if has_kpts:
-                kpts = kpts_all[i].cpu().numpy()  # (17, 2)
+            if kpts_all_cpu is not None:
+                kpts = kpts_all_cpu[i]  # 使用預先轉換的版本
                 draw_skeleton(frame, kpts, color=color)
         
         # === 顯示手臂狀態 ===
@@ -446,24 +486,42 @@ def main():
                 cv2.rectangle(frame, (x, y), (x + bw, y + bh), (0, 0, 255), 2)
                 cv2.circle(frame, (int(cx), int(cy)), 4, (0, 0, 255), -1)
 
-        # --- 3) 寫出 & 顯示 ---
+        # --- 3) 寫出（不顯示） ---
         out.write(frame)
-        cv2.imshow("result", frame)
-        # 想看的話也可以打開 mask debug：
-        # cv2.imshow("ball_debug", debug_vis)
-
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord('q'):
-            break
 
         frame_idx += 1
-        if frame_idx % 30 == 0:
-            print(f"Processed frame {frame_idx}")
+        
+        # === 進度顯示（每10秒） ===
+        current_time = time.time()
+        if current_time - last_progress_time >= 10.0:
+            elapsed_time = current_time - start_time
+            progress_percent = (frame_idx / total_frames) * 100
+            fps_current = frame_idx / elapsed_time
+            remaining_frames = total_frames - frame_idx
+            eta_seconds = remaining_frames / fps_current if fps_current > 0 else 0
+            
+            print(f"進度: {frame_idx}/{total_frames} ({progress_percent:.1f}%) | "
+                  f"已耗時: {elapsed_time:.1f}秒 | "
+                  f"處理速度: {fps_current:.1f} fps | "
+                  f"預估剩餘: {eta_seconds:.1f}秒")
+            
+            last_progress_time = current_time
 
     cap.release()
     out.release()
-    cv2.destroyAllWindows()
-    print("Done. Saved to:", OUTPUT_PATH)
+    
+    # === 最終統計 ===
+    total_time = time.time() - start_time
+    avg_fps = frame_idx / total_time if total_time > 0 else 0
+    
+    print("\n" + "="*60)
+    print("處理完成！")
+    print("="*60)
+    print(f"總幀數: {frame_idx}")
+    print(f"總耗時: {total_time:.1f} 秒 ({total_time/60:.1f} 分鐘)")
+    print(f"平均處理速度: {avg_fps:.1f} fps")
+    print(f"輸出檔案: {OUTPUT_PATH}")
+    print("="*60)
 
 
 if __name__ == "__main__":
