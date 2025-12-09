@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>羽球標註工具 - Web版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 10px;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .progress {
+            font-size: 18px;
+            color: #00ff88;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        #canvas {
+            max-width: 100%;
+            max-height: 80vh;
+            cursor: crosshair;
+            border: 2px solid #444;
+            border-radius: 5px;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .controls {
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #0066ff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0052cc;
+        }
+        
+        .btn-success {
+            background: #00ff88;
+            color: #1a1a1a;
+        }
+        
+        .btn-success:hover {
+            background: #00cc6e;
+        }
+        
+        .btn-danger {
+            background: #ff3b30;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #cc2e25;
+        }
+        
+        .btn-secondary {
+            background: #444;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #555;
+        }
+        
+        .info-box {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        
+        .label {
+            color: #888;
+        }
+        
+        .value {
+            color: #00ff88;
+            font-weight: 500;
+        }
+        
+        .boxes-list {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .box-item {
+            background: #444;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .box-info {
+            font-size: 12px;
+        }
+        
+        .delete-box {
+            background: #ff3b30;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .shortcuts {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .shortcut-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #00ff88;
+        }
+        
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 6px 0;
+            font-size: 13px;
+        }
+        
+        .key {
+            background: #444;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        
+        .status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #00ff88;
+            color: #1a1a1a;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">🏸 羽球標註工具</div>
+            <div class="progress">
+                <span id="current">0</span> / <span id="total">0</span>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+            
+            <div class="sidebar">
+                <div class="info-box">
+                    <div class="info-item">
+                        <span class="label">檔案名稱:</span>
+                        <span class="value" id="filename">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">標註框數:</span>
+                        <span class="value" id="boxCount">0</span>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="loadImages()">📁 載入圖片資料夾</button>
+                    <button class="btn btn-success" onclick="saveAnnotation()">💾 儲存標註 (S)</button>
+                    <button class="btn btn-secondary" onclick="prevImage()">⬅️ 上一張 (A)</button>
+                    <button class="btn btn-secondary" onclick="nextImage()">➡️ 下一張 (D)</button>
+                    <button class="btn btn-danger" onclick="clearBoxes()">🗑️ 清除所有框框</button>
+                </div>
+                
+                <div class="boxes-list" id="boxesList">
+                    <div style="color: #888; text-align: center;">尚未標註</div>
+                </div>
+                
+                <div class="shortcuts">
+                    <div class="shortcut-title">⌨️ 快捷鍵</div>
+                    <div class="shortcut-item">
+                        <span>滑鼠拖曳</span>
+                        <span class="key">繪製框框</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span>儲存標註</span>
+                        <span class="key">S</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span>下一張</span>
+                        <span class="key">D</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span>上一張</span>
+                        <span class="key">A</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span>刪除最後框框</span>
+                        <span class="key">Z</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="status" id="status">✅ 已儲存</div>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let images = [];
+        let currentIndex = 0;
+        let currentImage = null;
+        let boxes = [];
+        let isDrawing = false;
+        let startX, startY;
+        let scale = 1;
+        
+        // 載入圖片資料夾
+        async function loadImages() {
+            try {
+                const dirHandle = await window.showDirectoryPicker();
+                images = [];
+                
+                for await (const entry of dirHandle.values()) {
+                    if (entry.kind === 'file' && /\.(jpg|jpeg|png)$/i.test(entry.name)) {
+                        const file = await entry.getFileHandle();
+                        const fileData = await file.getFile();
+                        images.push({
+                            name: entry.name,
+                            file: fileData,
+                            dirHandle: dirHandle
+                        });
+                    }
+                }
+                
+                images.sort((a, b) => a.name.localeCompare(b.name));
+                
+                if (images.length > 0) {
+                    document.getElementById('total').textContent = images.length;
+                    currentIndex = 0;
+                    await loadImage(0);
+                    showStatus(`載入了 ${images.length} 張圖片`);
+                }
+            } catch (err) {
+                alert('載入圖片失敗：' + err.message);
+            }
+        }
+        
+        // 載入特定圖片
+        async function loadImage(index) {
+            if (index < 0 || index >= images.length) return;
+            
+            currentIndex = index;
+            boxes = [];
+            
+            const img = new Image();
+            img.src = URL.createObjectURL(images[index].file);
+            
+            img.onload = function() {
+                currentImage = img;
+                
+                // 計算縮放比例以適應畫布
+                const maxWidth = window.innerWidth - 400;
+                const maxHeight = window.innerHeight - 150;
+                scale = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
+                
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                
+                drawCanvas();
+                updateUI();
+                
+                // 嘗試載入已存在的標註
+                loadExistingAnnotation();
+            };
+        }
+        
+        // 載入已存在的標註
+        async function loadExistingAnnotation() {
+            const txtName = images[currentIndex].name.replace(/\.(jpg|jpeg|png)$/i, '.txt');
+            const dirHandle = images[currentIndex].dirHandle;
+            
+            try {
+                const fileHandle = await dirHandle.getFileHandle(txtName);
+                const file = await fileHandle.getFile();
+                const text = await file.text();
+                
+                boxes = [];
+                const lines = text.trim().split('\n');
+                for (const line of lines) {
+                    const parts = line.trim().split(/\s+/);
+                    if (parts.length >= 5) {
+                        const cx = parseFloat(parts[1]);
+                        const cy = parseFloat(parts[2]);
+                        const w = parseFloat(parts[3]);
+                        const h = parseFloat(parts[4]);
+                        
+                        boxes.push({
+                            x: (cx - w/2) * currentImage.width,
+                            y: (cy - h/2) * currentImage.height,
+                            width: w * currentImage.width,
+                            height: h * currentImage.height
+                        });
+                    }
+                }
+                
+                drawCanvas();
+                updateUI();
+            } catch (err) {
+                // 沒有標註檔案，忽略
+            }
+        }
+        
+        // 繪製畫布
+        function drawCanvas() {
+            if (!currentImage) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+            
+            // 繪製所有框框
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 2;
+            
+            boxes.forEach((box, index) => {
+                const x = box.x * scale;
+                const y = box.y * scale;
+                const w = box.width * scale;
+                const h = box.height * scale;
+                
+                ctx.strokeRect(x, y, w, h);
+                
+                // 繪製框框編號
+                ctx.fillStyle = '#00ff88';
+                ctx.font = '14px monospace';
+                ctx.fillText(`#${index + 1}`, x + 5, y + 18);
+            });
+        }
+        
+        // 滑鼠事件
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            startX = (e.clientX - rect.left) / scale;
+            startY = (e.clientY - rect.top) / scale;
+            isDrawing = true;
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const currentX = (e.clientX - rect.left) / scale;
+            const currentY = (e.clientY - rect.top) / scale;
+            
+            drawCanvas();
+            
+            // 繪製當前正在畫的框框
+            ctx.strokeStyle = '#ff3b30';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(
+                startX * scale,
+                startY * scale,
+                (currentX - startX) * scale,
+                (currentY - startY) * scale
+            );
+        });
+        
+        canvas.addEventListener('mouseup', (e) => {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const endX = (e.clientX - rect.left) / scale;
+            const endY = (e.clientY - rect.top) / scale;
+            
+            const width = Math.abs(endX - startX);
+            const height = Math.abs(endY - startY);
+            
+            // 只有框框夠大才加入
+            if (width > 5 && height > 5) {
+                boxes.push({
+                    x: Math.min(startX, endX),
+                    y: Math.min(startY, endY),
+                    width: width,
+                    height: height
+                });
+            }
+            
+            isDrawing = false;
+            drawCanvas();
+            updateUI();
+        });
+        
+        // 儲存標註
+        async function saveAnnotation() {
+            if (boxes.length === 0) {
+                alert('請先標註羽球！');
+                return;
+            }
+            
+            const txtName = images[currentIndex].name.replace(/\.(jpg|jpeg|png)$/i, '.txt');
+            const dirHandle = images[currentIndex].dirHandle;
+            
+            // 轉換為 YOLO 格式
+            let content = '';
+            boxes.forEach(box => {
+                const cx = (box.x + box.width / 2) / currentImage.width;
+                const cy = (box.y + box.height / 2) / currentImage.height;
+                const w = box.width / currentImage.width;
+                const h = box.height / currentImage.height;
+                
+                content += `0 ${cx.toFixed(6)} ${cy.toFixed(6)} ${w.toFixed(6)} ${h.toFixed(6)}\n`;
+            });
+            
+            try {
+                const fileHandle = await dirHandle.getFileHandle(txtName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(content);
+                await writable.close();
+                
+                showStatus('✅ 已儲存');
+            } catch (err) {
+                alert('儲存失敗：' + err.message);
+            }
+        }
+        
+        // 下一張
+        function nextImage() {
+            if (currentIndex < images.length - 1) {
+                loadImage(currentIndex + 1);
+            }
+        }
+        
+        // 上一張
+        function prevImage() {
+            if (currentIndex > 0) {
+                loadImage(currentIndex - 1);
+            }
+        }
+        
+        // 清除所有框框
+        function clearBoxes() {
+            if (confirm('確定要清除所有框框嗎？')) {
+                boxes = [];
+                drawCanvas();
+                updateUI();
+            }
+        }
+        
+        // 刪除特定框框
+        function deleteBox(index) {
+            boxes.splice(index, 1);
+            drawCanvas();
+            updateUI();
+        }
+        
+        // 更新 UI
+        function updateUI() {
+            document.getElementById('current').textContent = currentIndex + 1;
+            document.getElementById('filename').textContent = images[currentIndex]?.name || '-';
+            document.getElementById('boxCount').textContent = boxes.length;
+            
+            // 更新框框列表
+            const boxesList = document.getElementById('boxesList');
+            if (boxes.length === 0) {
+                boxesList.innerHTML = '<div style="color: #888; text-align: center;">尚未標註</div>';
+            } else {
+                boxesList.innerHTML = boxes.map((box, index) => `
+                    <div class="box-item">
+                        <div class="box-info">
+                            框框 #${index + 1}<br>
+                            <span style="color: #888; font-size: 11px;">
+                                ${Math.round(box.x)}, ${Math.round(box.y)}, 
+                                ${Math.round(box.width)}x${Math.round(box.height)}
+                            </span>
+                        </div>
+                        <button class="delete-box" onclick="deleteBox(${index})">刪除</button>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // 顯示狀態訊息
+        function showStatus(message) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.style.display = 'block';
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 2000);
+        }
+        
+        // 鍵盤快捷鍵
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 's' || e.key === 'S') {
+                e.preventDefault();
+                saveAnnotation();
+            } else if (e.key === 'd' || e.key === 'D') {
+                e.preventDefault();
+                nextImage();
+            } else if (e.key === 'a' || e.key === 'A') {
+                e.preventDefault();
+                prevImage();
+            } else if (e.key === 'z' || e.key === 'Z') {
+                e.preventDefault();
+                if (boxes.length > 0) {
+                    boxes.pop();
+                    drawCanvas();
+                    updateUI();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
