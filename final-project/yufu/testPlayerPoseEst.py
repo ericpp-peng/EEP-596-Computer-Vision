@@ -4,6 +4,7 @@ import torch
 import torch.serialization
 from ultralytics import YOLO
 import time
+from collections import deque
 
 # Fix for PyTorch 2.6+ weights_only loading issue
 torch.serialization.add_safe_globals(['ultralytics.nn.tasks.PoseModel'])
@@ -169,6 +170,98 @@ def is_arm_raised(kpts):
     return r_wrist[1] < (r_shoulder[1] - 30)  # 至少高於肩膀 30 pixels
 
 
+def classify_shot_by_trajectory(ball_history, shot_frame_idx, fps=30, 
+                                  frames_after=5, frames_before=3):
+    """
+    根據球的軌跡判斷擊球類型
+    
+    Args:
+        ball_history: deque of (frame_idx, cx, cy) or None
+        shot_frame_idx: 擊球發生的幀數
+        fps: 影片 fps
+        frames_after: 擊球後取幾幀來計算
+        frames_before: 擊球前取幾幀來確認
+    
+    Returns:
+        shot_type: "Smash", "Clear", "Drop", or "Unknown"
+        trajectory_info: dict with Δx, Δy, velocity, angle
+    """
+    # 從 ball_history 中找到擊球前後的球位置
+    ball_at_shot = None
+    ball_after = None
+    
+    # 找擊球時刻的球位置（允許前後 2 幀的容錯）
+    for entry in ball_history:
+        if entry is None:
+            continue
+        frame_idx, cx, cy = entry
+        if abs(frame_idx - shot_frame_idx) <= 2:
+            ball_at_shot = (cx, cy)
+            break
+    
+    # 找擊球後的球位置（取第 frames_after 幀）
+    target_frame = shot_frame_idx + frames_after
+    for entry in ball_history:
+        if entry is None:
+            continue
+        frame_idx, cx, cy = entry
+        if abs(frame_idx - target_frame) <= 2:
+            ball_after = (cx, cy)
+            break
+    
+    if ball_at_shot is None or ball_after is None:
+        return "Unknown", {}
+    
+    # 計算 Δx, Δy
+    x0, y0 = ball_at_shot
+    x1, y1 = ball_after
+    dx = x1 - x0
+    dy = y1 - y0
+    
+    # 計算速度（pixels per second）
+    dt = frames_after / fps  # 時間間隔（秒）
+    distance = np.hypot(dx, dy)
+    velocity = distance / dt if dt > 0 else 0
+    
+    # 計算角度（相對於水平線，向下為正）
+    angle_deg = np.degrees(np.arctan2(dy, abs(dx))) if dx != 0 else 0
+    
+    # === 分類邏輯 ===
+    # 門檻值（可調整）
+    SMASH_VELOCITY_THRESH = 800    # 殺球速度門檻（pixels/s）
+    CLEAR_DY_THRESH = -50          # 高遠球：Δy 明顯為負（往上飛）
+    DROP_VELOCITY_THRESH = 400     # 切球速度門檻
+    
+    shot_type = "Unknown"
+    
+    if dy < CLEAR_DY_THRESH:
+        # 球往上飛 → 高遠球
+        shot_type = "Clear"
+    elif dy > 0 and velocity > SMASH_VELOCITY_THRESH:
+        # 球往下且速度很快 → 殺球
+        shot_type = "Smash"
+    elif dy > 0 and velocity < DROP_VELOCITY_THRESH:
+        # 球往下但速度慢 → 切球
+        shot_type = "Drop"
+    elif velocity > SMASH_VELOCITY_THRESH:
+        # 速度很快但方向不明顯 → 可能是平抽或殺球
+        shot_type = "Smash/Drive"
+    else:
+        # 其他情況
+        shot_type = "Drop/Net"
+    
+    trajectory_info = {
+        'dx': dx,
+        'dy': dy,
+        'velocity': velocity,
+        'angle': angle_deg,
+        'ball_at_shot': ball_at_shot,
+        'ball_after': ball_after
+    }
+    
+    return shot_type, trajectory_info
+
+
 def main():
     # === 設定 GPU 加速 (MPS for M4 Pro) ===
     if torch.backends.mps.is_available():
@@ -243,11 +336,18 @@ def main():
     last_ball = None
     frame_idx = 0
 
+    # === 球軌跡記錄（用於判斷擊球類型）===
+    ball_history = deque(maxlen=60)  # 保留最近 60 幀的球位置（2秒@30fps）
+
     # === 手臂動作追蹤變數 ===
     arm_was_raised = False      # 上一幀手臂是否抬起
+    arm_raised_frame = None     # 手臂抬起的幀數（用於追蹤後續球的運動）
     shot_detected = False       # 是否偵測到擊球動作
-    shot_type = ""             # 擊球類型（暫定為 "Smash/Clear/Drop"）
+    shot_type = ""             # 擊球類型
     shot_display_timer = 0      # 顯示計時器（顯示 30 幀 = 約 1 秒）
+    trajectory_info = {}        # 軌跡資訊
+    tracking_points = []        # 追蹤期間的所有球位置點（用於可視化）
+    analysis_complete = False   # 判斷是否已完成分析
 
     # === 進度追蹤變數 ===
     start_time = time.time()
@@ -269,6 +369,7 @@ def main():
 
         # --- 1) YOLO Pose 抓「人」 + skeleton ---
         person_boxes = []  # 存所有人的 bbox（不管在不在場內，用來過濾球）
+        text_boxes = []    # 存所有文字標註的 bbox（用來過濾球的候選區域）
 
         # 使用 GPU 加速推論（保持 640 解析度以維持品質）
         results = people_model(
@@ -371,13 +472,88 @@ def main():
             kpts = kpts_all_cpu[i]  # 使用預先轉換的版本
             current_arm_raised = is_arm_raised(kpts)
             
-            # 偵測「抬起 → 放下」的動作
-            if arm_was_raised and not current_arm_raised:
-                # 手臂從抬起變成放下 = 可能是擊球動作
-                shot_detected = True
-                shot_type = "Smash / Clear / Drop"
-                shot_display_timer = 30  # 顯示 30 幀
-                # print(f"🎾 Frame {frame_idx}: 偵測到擊球動作！")  # 註解掉，避免過多輸出
+            # 記錄手臂抬起的時刻
+            if current_arm_raised and not arm_was_raised:
+                # 手臂從放下變成抬起
+                arm_raised_frame = frame_idx
+                tracking_points = []  # 清空追蹤點
+                analysis_complete = False  # 重置分析狀態
+                print(f"\n📍 Frame {frame_idx}: 手臂抬起，開始追蹤球的運動...")
+            
+            # ⚠️ 注意：tracking_points 的收集移到偵測球之後（在後面的代碼中）
+            
+            # 在手臂抬起後約30幀（1秒@30fps）檢查球的運動方向
+            if arm_raised_frame is not None and not analysis_complete and (frame_idx - arm_raised_frame) >= 30:
+                # 分析從手臂抬起到現在的球運動方向
+                ball_at_raise = None
+                ball_now = None
+                
+                # 找手臂抬起時刻附近的球位置（容錯±3幀）
+                for entry in ball_history:
+                    if entry is None:
+                        continue
+                    f_idx, cx, cy = entry
+                    if abs(f_idx - arm_raised_frame) <= 3:
+                        ball_at_raise = (cx, cy)
+                        break
+                
+                # 找現在的球位置（最近的球）
+                for entry in reversed(ball_history):
+                    if entry is not None:
+                        f_idx, cx, cy = entry
+                        ball_now = (cx, cy)
+                        break
+                
+                if ball_at_raise and ball_now:
+                    # 計算 y 軸方向變化
+                    dy = ball_now[1] - ball_at_raise[1]
+                    dx = ball_now[0] - ball_at_raise[0]
+                    
+                    # 計算速度
+                    dt = (frame_idx - arm_raised_frame) / fps
+                    distance = np.hypot(dx, dy)
+                    velocity = distance / dt if dt > 0 else 0
+                    
+                    # 根據 y 軸方向判斷擊球類型
+                    if dy < -20:  # y 變小（往上 = 往高處）
+                        shot_type = "Clear (高遠球)"
+                    elif dy > 20:  # y 變大（往下 = 往低處）
+                        if velocity > 500:  # 速度快
+                            shot_type = "Smash (殺球)"
+                        else:  # 速度慢
+                            shot_type = "Drop (切球)"
+                    else:
+                        shot_type = "Drive (平抽)"
+                    
+                    shot_detected = True
+                    shot_display_timer = 60  # 顯示 60 幀（2秒）
+                    analysis_complete = True  # 標記分析完成
+                    
+                    trajectory_info = {
+                        'dx': dx,
+                        'dy': dy,
+                        'velocity': velocity,
+                        'ball_at_raise': ball_at_raise,
+                        'ball_now': ball_now
+                    }
+                    
+                    print(f"\n🎾 Frame {frame_idx}: 偵測到擊球！")
+                    print(f"   類型: {shot_type}")
+                    print(f"   Δy: {dy:.1f} pixels ({'往高處' if dy < 0 else '往低處'})")
+                    print(f"   速度: {velocity:.1f} pixels/s")
+                    print(f"   手臂抬起於 Frame {arm_raised_frame}，已追蹤 {frame_idx - arm_raised_frame} 幀")
+                    print(f"   追蹤到 {len(tracking_points)} 個球位置點")
+                    
+                    # 不重置 arm_raised_frame 和 tracking_points，保留用於顯示
+                else:
+                    # ⚠️ 修正：如果找不到球，也要結束追蹤，避免無限循環
+                    print(f"\n⚠️  Frame {frame_idx}: 追蹤30幀後無法找到有效的球位置")
+                    print(f"   ball_at_raise: {ball_at_raise}, ball_now: {ball_now}")
+                    print(f"   追蹤到 {len(tracking_points)} 個球位置點")
+                    analysis_complete = True  # 標記完成，避免重複分析
+                    # 清空追蹤狀態
+                    arm_raised_frame = None
+                    tracking_points = []
             
             arm_was_raised = current_arm_raised
         
@@ -393,16 +569,26 @@ def main():
             # 根據是否在場內選擇不同顏色
             color = (0, 255, 0) if in_court else (0, 165, 255)  # 綠色=場內，橘色=場外
             
-            # 1) 畫人框 + 底部兩點
-            cv2.rectangle(frame, (x1i, y1i), (x2i, y2i), color, 2)
-            cv2.circle(frame, bl, 3, color, -1)
-            cv2.circle(frame, br, 3, color, -1)
+            # ⭐ 隱藏人物框和文字標註
+            # # 1) 畫人框 + 底部兩點
+            # cv2.rectangle(frame, (x1i, y1i), (x2i, y2i), color, 2)
+            # cv2.circle(frame, bl, 3, color, -1)
+            # cv2.circle(frame, br, 3, color, -1)
             
-            status_text = "IN COURT" if in_court else "OUT (Largest)"
-            cv2.putText(frame, f"person {conf:.2f} [{status_text}]",
-                        (x1i, max(0, y1i - 5)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6,
-                        color, 2)
+            # status_text = "IN COURT" if in_court else "OUT (Largest)"
+            # text = f"person {conf:.2f} [{status_text}]"
+            # text_pos = (x1i, max(0, y1i - 5))
+            # cv2.putText(frame, text, text_pos,
+            #             cv2.FONT_HERSHEY_SIMPLEX, 0.6,
+            #             color, 2)
+            
+            # # 記錄文字區域（估計文字的 bounding box）
+            # text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)[0]
+            # text_x1 = text_pos[0]
+            # text_y1 = text_pos[1] - text_size[1] - 5
+            # text_x2 = text_pos[0] + text_size[0]
+            # text_y2 = text_pos[1] + 5
+            # text_boxes.append((text_x1, text_y1, text_x2, text_y2))
 
             # 2) 對選中的人畫 skeleton
             if kpts_all_cpu is not None:
@@ -418,22 +604,115 @@ def main():
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7,
                        arm_status_color, 2)
         
+        # === 顯示追蹤中的球位置點（30幀判斷點）===
+        if arm_raised_frame is not None and len(tracking_points) > 0:
+            # 顯示追蹤狀態文字
+            if not analysis_complete:
+                tracking_text = f"Tracking... ({len(tracking_points)}/30 frames)"
+                cv2.putText(frame, tracking_text,
+                           (10, h - 70),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.7,
+                           (0, 255, 255), 2)
+            
+            # 畫出所有追蹤點
+            for i, (px, py, f_idx) in enumerate(tracking_points):
+                # 根據時間順序使用漸變顏色（從藍色漸變到紅色）
+                progress = i / max(len(tracking_points) - 1, 1)
+                color_b = int(255 * (1 - progress))  # 藍色分量遞減
+                color_r = int(255 * progress)        # 紅色分量遞增
+                point_color = (color_b, 100, color_r)
+                
+                # 畫點（較大的圓圈）
+                cv2.circle(frame, (int(px), int(py)), 5, point_color, -1)
+                cv2.circle(frame, (int(px), int(py)), 6, (255, 255, 255), 1)  # 白色邊框
+                
+                # 每5個點標註一次幀數（避免太擁擠）
+                if i % 5 == 0:
+                    cv2.putText(frame, f"{i+1}", 
+                               (int(px) + 8, int(py) - 8),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.4,
+                               (255, 255, 255), 1)
+            
+            # 畫軌跡連線（用漸變顏色）
+            if len(tracking_points) > 1:
+                for i in range(len(tracking_points) - 1):
+                    pt1 = (int(tracking_points[i][0]), int(tracking_points[i][1]))
+                    pt2 = (int(tracking_points[i+1][0]), int(tracking_points[i+1][1]))
+                    
+                    # 漸變顏色
+                    progress = i / max(len(tracking_points) - 1, 1)
+                    color_b = int(255 * (1 - progress))
+                    color_r = int(255 * progress)
+                    line_color = (color_b, 150, color_r)
+                    
+                    cv2.line(frame, pt1, pt2, line_color, 2)
+            
+            # 標示起點和終點
+            if len(tracking_points) > 0:
+                start_pt = (int(tracking_points[0][0]), int(tracking_points[0][1]))
+                cv2.circle(frame, start_pt, 8, (255, 0, 0), 2)  # 藍色圈 = 起點
+                cv2.putText(frame, "START", 
+                           (start_pt[0] + 10, start_pt[1] - 10),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                           (255, 0, 0), 2)
+                
+                if analysis_complete and len(tracking_points) > 1:
+                    end_pt = (int(tracking_points[-1][0]), int(tracking_points[-1][1]))
+                    cv2.circle(frame, end_pt, 8, (0, 0, 255), 2)  # 紅色圈 = 終點
+                    cv2.putText(frame, "END", 
+                               (end_pt[0] + 10, end_pt[1] - 10),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                               (0, 0, 255), 2)
+        
         # === 顯示擊球偵測結果 ===
         if shot_display_timer > 0:
             # 半透明背景
             overlay = frame.copy()
-            cv2.rectangle(overlay, (w//2 - 250, 50), (w//2 + 250, 150), (0, 0, 0), -1)
+            cv2.rectangle(overlay, (w//2 - 250, 50), (w//2 + 250, 200), (0, 0, 0), -1)
             cv2.addWeighted(overlay, 0.6, frame, 0.4, 0, frame)
             
             # 主要文字（橘色）
             cv2.putText(frame, "SHOT DETECTED!", 
                        (w//2 - 220, 90),
                        cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 165, 255), 3)
-            cv2.putText(frame, shot_type, 
-                       (w//2 - 180, 130),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
+            
+            # 擊球類型（黃色，更大）
+            cv2.putText(frame, f"Type: {shot_type}", 
+                       (w//2 - 180, 135),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 255), 2)
+            
+            # 顯示軌跡資訊（小字，青色）
+            if trajectory_info:
+                vel = trajectory_info.get('velocity', 0)
+                angle = trajectory_info.get('angle', 0)
+                info_text = f"V: {vel:.0f} px/s  Angle: {angle:.1f}deg"
+                cv2.putText(frame, info_text, 
+                           (w//2 - 180, 175),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
             
             shot_display_timer -= 1
+            
+            # === 在畫面上畫出軌跡線（如果有資訊）===
+            if trajectory_info and 'ball_at_shot' in trajectory_info and 'ball_after' in trajectory_info:
+                pt0 = trajectory_info['ball_at_shot']
+                pt1 = trajectory_info['ball_after']
+                if pt0 and pt1:
+                    # 畫軌跡線（綠色箭頭）
+                    cv2.arrowedLine(frame, 
+                                   (int(pt0[0]), int(pt0[1])), 
+                                   (int(pt1[0]), int(pt1[1])), 
+                                   (0, 255, 0), 3, tipLength=0.3)
+                    # 標示起點和終點
+                    cv2.circle(frame, (int(pt0[0]), int(pt0[1])), 6, (0, 255, 0), -1)
+                    cv2.circle(frame, (int(pt1[0]), int(pt1[1])), 6, (255, 0, 255), -1)
+            
+            shot_display_timer -= 1
+            
+            # 當顯示計時器歸零時，清空追蹤點
+            if shot_display_timer == 0:
+                tracking_points = []
+                arm_raised_frame = None
+                analysis_complete = False
 
         # --- 2) 找球（motion-based） ---
         ball_pos, ball_bbox, gray, debug_vis, cand_boxes = find_ball_motion(
@@ -446,9 +725,52 @@ def main():
         )
         prev_gray = gray
 
+        # === 記錄球的位置到 ball_history ===
+        ball_info_text = []  # 用來顯示球的即時數據
+        
+        if ball_pos is not None:
+            cx, cy = ball_pos
+            # 只記錄在邊界內且不在人身上的球
+            if (x_min_ball <= cx <= x_max_ball) and not any(
+                point_in_box(cx, cy, pb) for pb in person_boxes
+            ):
+                ball_history.append((frame_idx, cx, cy))
+                
+                # === 計算球的即時速度和方向 ===
+                if len(ball_history) >= 2:
+                    # 找最近的兩個有效球位置
+                    recent_balls = [b for b in list(ball_history)[-10:] if b is not None]
+                    if len(recent_balls) >= 2:
+                        prev_ball = recent_balls[-2]
+                        curr_ball = recent_balls[-1]
+                        
+                        # 計算位移和速度
+                        dx = curr_ball[1] - prev_ball[1]  # x 位移
+                        dy = curr_ball[2] - prev_ball[2]  # y 位移
+                        dt = (curr_ball[0] - prev_ball[0]) / fps  # 時間差
+                        
+                        if dt > 0:
+                            velocity = np.hypot(dx, dy) / dt  # 速度 (px/s)
+                            angle = np.degrees(np.arctan2(dy, abs(dx))) if dx != 0 else 0
+                            
+                            # 準備顯示的資訊
+                            ball_info_text = [
+                                f"Ball Pos: ({int(cx)}, {int(cy)})",
+                                f"dx: {dx:.1f}  dy: {dy:.1f}",
+                                f"Velocity: {velocity:.0f} px/s",
+                                f"Angle: {angle:.1f} deg",
+                                f"Direction: {'UP' if dy < 0 else 'DOWN'}"
+                            ]
+            else:
+                ball_history.append(None)  # 球不符合條件
+        else:
+            ball_history.append(None)  # 沒偵測到球
+
+        # === 選球策略：優先選右手附近的 candidate ===
         # 先畫「符合條件的 candidates」（藍色）：
         #   1. candidate 的中心 x 在 [x_min_ball, x_max_ball] 之間
         #   2. candidate 的中心不落在任何一個人的 bbox 裡
+        #   3. candidate 的中心不落在文字標註區域裡
         filtered_candidates = []
         for (x_c, y_c, bw_c, bh_c, cx_c, cy_c, area_c) in cand_boxes:
             cx_c_i, cy_c_i = int(cx_c), int(cy_c)
@@ -465,6 +787,15 @@ def main():
                     break
             if inside_any_person:
                 continue
+            
+            # (3) 不在文字標註區域內
+            inside_any_text = False
+            for tb in text_boxes:
+                if point_in_box(cx_c, cy_c, tb):
+                    inside_any_text = True
+                    break
+            if inside_any_text:
+                continue
 
             # 通過條件的 candidate
             filtered_candidates.append((x_c, y_c, bw_c, bh_c, cx_c, cy_c, area_c))
@@ -473,21 +804,82 @@ def main():
             cv2.rectangle(frame, (x_c, y_c), (x_c + bw_c, y_c + bh_c), (255, 0, 0), 1)
             cv2.circle(frame, (cx_c_i, cy_c_i), 2, (255, 0, 0), -1)
 
-        # 再畫球（紅色）：這裡只要畫就好，不再分 IN/OUT
-        if ball_pos is not None and ball_bbox is not None:
+        # === 新策略：選擇 y 最小（畫面最高）的候選球 ===
+        selected_ball_pos = None
+        selected_ball_bbox = None
+        
+        # 如果有符合條件的候選球，選擇 y 座標最小的（畫面最高的）
+        if len(filtered_candidates) > 0:
+            # 找 y 座標最小的 candidate
+            min_y = 1e9
+            for (x_c, y_c, bw_c, bh_c, cx_c, cy_c, area_c) in filtered_candidates:
+                if cy_c < min_y:
+                    min_y = cy_c
+                    selected_ball_pos = (cx_c, cy_c)
+                    selected_ball_bbox = (x_c, y_c, bw_c, bh_c)
+        
+        # 如果沒有找到候選球，fallback 到原本的邏輯（找離上一幀最近的）
+        if selected_ball_pos is None and ball_pos is not None:
             cx, cy = ball_pos
-            x, y, bw, bh = ball_bbox
-            last_ball = ball_pos
-
-            # 如果球中心 x 不在邊界內，或落在人身上，就不畫
+            # 檢查是否在邊界內且不在人身上
             if (x_min_ball <= cx <= x_max_ball) and not any(
                 point_in_box(cx, cy, pb) for pb in person_boxes
             ):
-                cv2.rectangle(frame, (x, y), (x + bw, y + bh), (0, 0, 255), 2)
-                cv2.circle(frame, (int(cx), int(cy)), 4, (0, 0, 255), -1)
+                selected_ball_pos = ball_pos
+                selected_ball_bbox = ball_bbox
+        
+        # 畫球（紅色）
+        if selected_ball_pos is not None and selected_ball_bbox is not None:
+            cx, cy = selected_ball_pos
+            x, y, bw, bh = selected_ball_bbox
+            last_ball = selected_ball_pos  # 更新 last_ball 用於下一幀追蹤
+            
+            cv2.rectangle(frame, (x, y), (x + bw, y + bh), (0, 0, 255), 2)
+            cv2.circle(frame, (int(cx), int(cy)), 4, (0, 0, 255), -1)
+            
+            # 更新 ball_pos 供後續使用（記錄到 history）
+            ball_pos = selected_ball_pos
+            ball_bbox = selected_ball_bbox
+        
+        # === 在追蹤期間收集球的位置點（移到這裡，確保球已經被偵測） ===
+        if arm_raised_frame is not None and not analysis_complete:
+            # 檢查當前幀是否有球
+            if selected_ball_pos is not None:
+                tracking_points.append((selected_ball_pos[0], selected_ball_pos[1], frame_idx))
+                print(f"   Frame {frame_idx}: 追蹤球位置 ({int(selected_ball_pos[0])}, {int(selected_ball_pos[1])})")
 
-        # --- 3) 寫出（不顯示） ---
+        # === 即時顯示球的數據（左上角） ===
+        if ball_info_text:
+            # 半透明背景
+            overlay = frame.copy()
+            cv2.rectangle(overlay, (10, 10), (350, 10 + 30 * len(ball_info_text)), (0, 0, 0), -1)
+            cv2.addWeighted(overlay, 0.7, frame, 0.3, 0, frame)
+            
+            # 顯示每一行資訊
+            for idx, text in enumerate(ball_info_text):
+                y_pos = 35 + idx * 25
+                cv2.putText(frame, text, (15, y_pos),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
+        
+        # === 顯示幀數（右上角） ===
+        frame_text = f"Frame: {frame_idx}/{total_frames}"
+        cv2.putText(frame, frame_text, (w - 250, 30),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+
+        # --- 3) 寫出 + 即時顯示 ---
         out.write(frame)
+        
+        # 即時顯示處理結果
+        cv2.imshow('Badminton Analysis', frame)
+        
+        # 按 'q' 可以提前結束，按 'p' 暫停
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'):
+            print("\n⚠️  使用者中斷處理")
+            break
+        elif key == ord('p'):
+            print("\n⏸️  暫停中，按任意鍵繼續...")
+            cv2.waitKey(0)
 
         frame_idx += 1
         
@@ -509,6 +901,7 @@ def main():
 
     cap.release()
     out.release()
+    cv2.destroyAllWindows()  # 關閉所有 OpenCV 視窗
     
     # === 最終統計 ===
     total_time = time.time() - start_time
