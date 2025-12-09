@@ -149,6 +149,24 @@ def draw_skeleton(frame, kpts, color=(0, 255, 255)):
         cv2.line(frame, (int(x1), int(y1)), (int(x2), int(y2)), color, 2)
 
 
+def is_arm_raised(kpts):
+    """
+    判斷手臂是否抬起（右手腕是否高於右肩）
+    Returns: True 如果手臂抬起，False 否則
+    """
+    if len(kpts) < 17:
+        return False
+    
+    r_shoulder = kpts[6]  # 右肩
+    r_wrist = kpts[10]    # 右手腕
+    
+    if r_shoulder[0] <= 0 or r_wrist[0] <= 0:
+        return False
+    
+    # 手腕 y 座標小於肩膀（y 軸向下為正）表示手腕在肩膀上方
+    return r_wrist[1] < (r_shoulder[1] - 30)  # 至少高於肩膀 30 pixels
+
+
 def main():
     # === 讀取球場 polygon ===
     court_pts = np.load(COURT_PTS_PATH)
@@ -199,6 +217,12 @@ def main():
     prev_gray = None
     last_ball = None
     frame_idx = 0
+
+    # === 手臂動作追蹤變數 ===
+    arm_was_raised = False      # 上一幀手臂是否抬起
+    shot_detected = False       # 是否偵測到擊球動作
+    shot_type = ""             # 擊球類型（暫定為 "Smash/Clear/Drop"）
+    shot_display_timer = 0      # 顯示計時器（顯示 30 幀 = 約 1 秒）
 
     while True:
         ret, frame = cap.read()
@@ -300,6 +324,23 @@ def main():
             # 次要：沒有人在場內，選所有人中面積最大的
             selected_person = max(all_persons, key=lambda p: p['area'])
         
+        # === 手臂動作偵測（只對選中的人做） ===
+        current_arm_raised = False
+        if selected_person and has_kpts:
+            i = selected_person['index']
+            kpts = kpts_all[i].cpu().numpy()
+            current_arm_raised = is_arm_raised(kpts)
+            
+            # 偵測「抬起 → 放下」的動作
+            if arm_was_raised and not current_arm_raised:
+                # 手臂從抬起變成放下 = 可能是擊球動作
+                shot_detected = True
+                shot_type = "Smash / Clear / Drop"
+                shot_display_timer = 30  # 顯示 30 幀
+                print(f"🎾 Frame {frame_idx}: 偵測到擊球動作！")
+            
+            arm_was_raised = current_arm_raised
+        
         # 畫選中的人
         if selected_person:
             i = selected_person['index']
@@ -327,6 +368,32 @@ def main():
             if has_kpts:
                 kpts = kpts_all[i].cpu().numpy()  # (17, 2)
                 draw_skeleton(frame, kpts, color=color)
+        
+        # === 顯示手臂狀態 ===
+        if selected_person:
+            arm_status_text = "ARM: UP" if current_arm_raised else "ARM: DOWN"
+            arm_status_color = (0, 255, 0) if current_arm_raised else (128, 128, 128)
+            cv2.putText(frame, arm_status_text,
+                       (10, h - 40),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.7,
+                       arm_status_color, 2)
+        
+        # === 顯示擊球偵測結果 ===
+        if shot_display_timer > 0:
+            # 半透明背景
+            overlay = frame.copy()
+            cv2.rectangle(overlay, (w//2 - 250, 50), (w//2 + 250, 150), (0, 0, 0), -1)
+            cv2.addWeighted(overlay, 0.6, frame, 0.4, 0, frame)
+            
+            # 主要文字（橘色）
+            cv2.putText(frame, "SHOT DETECTED!", 
+                       (w//2 - 220, 90),
+                       cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 165, 255), 3)
+            cv2.putText(frame, shot_type, 
+                       (w//2 - 180, 130),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
+            
+            shot_display_timer -= 1
 
         # --- 2) 找球（motion-based） ---
         ball_pos, ball_bbox, gray, debug_vis, cand_boxes = find_ball_motion(
