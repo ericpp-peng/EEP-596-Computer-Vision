@@ -304,5 +304,95 @@
     "predicted": "Clear",
     "user_label": "Clear",
     "correct": true
+  },
+  {
+    "timestamp": "2025-12-09T15:16:10.259091",
+    "frame": 153,
+    "parameters": {
+      "overall_slope": 51.75,
+      "highest_position_ratio": 0.2558139534883721,
+      "velocity": 335.6058437230133,
+      "acceleration": -6.440486559368139,
+      "y_range": 59.840909090909065,
+      "high_ball_ratio": 0.27906976744186046,
+      "last_frames_low": false,
+      "has_turning_point": false,
+      "turning_point_info": ""
+    },
+    "predicted": "Clear",
+    "user_label": "Clear",
+    "correct": true
+  },
+  {
+    "timestamp": "2025-12-09T15:16:19.971572",
+    "frame": 282,
+    "parameters": {
+      "overall_slope": -81.49252717391303,
+      "highest_position_ratio": 0.96,
+      "velocity": 84.45685577392578,
+      "acceleration": 0.2218625731567725,
+      "y_range": 83.13315217391303,
+      "high_ball_ratio": 1.0,
+      "last_frames_low": false,
+      "has_turning_point": false,
+      "turning_point_info": ""
+    },
+    "predicted": "Clear",
+    "user_label": "Smash",
+    "correct": false
+  },
+  {
+    "timestamp": "2025-12-09T15:16:33.685215",
+    "frame": 477,
+    "parameters": {
+      "overall_slope": 54.5625,
+      "highest_position_ratio": 0.22448979591836735,
+      "velocity": 206.26663208007812,
+      "acceleration": 7.314375877380371,
+      "y_range": 67.5,
+      "high_ball_ratio": 1.0,
+      "last_frames_low": false,
+      "has_turning_point": false,
+      "turning_point_info": ""
+    },
+    "predicted": "Clear",
+    "user_label": "Clear",
+    "correct": true
+  },
+  {
+    "timestamp": "2025-12-09T15:16:47.613874",
+    "frame": 609,
+    "parameters": {
+      "overall_slope": 205.0212121212121,
+      "highest_position_ratio": 0.025,
+      "velocity": 251.48906411827744,
+      "acceleration": -3.02764269201319,
+      "y_range": 222.21925133689837,
+      "high_ball_ratio": 0.65,
+      "last_frames_low": true,
+      "has_turning_point": false,
+      "turning_point_info": ""
+    },
+    "predicted": "Drop",
+    "user_label": "Clear",
+    "correct": false
+  },
+  {
+    "timestamp": "2025-12-09T15:17:01.081055",
+    "frame": 797,
+    "parameters": {
+      "overall_slope": -3.75,
+      "highest_position_ratio": 0.76,
+      "velocity": 118.91815948486328,
+      "acceleration": 2.5856926441192627,
+      "y_range": 24.0,
+      "high_ball_ratio": 0.0,
+      "last_frames_low": true,
+      "has_turning_point": false,
+      "turning_point_info": ""
+    },
+    "predicted": "Drop",
+    "user_label": "Drop",
+    "correct": true
   }
 ]
