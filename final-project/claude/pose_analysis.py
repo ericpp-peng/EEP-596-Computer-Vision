@@ -60,6 +60,236 @@ def distance(p1, p2):
     return np.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
 
 
+def calculate_wrist_speed(keypoints, prev_keypoints):
+    """
+    計算手腕速度（用於偵測擊球瞬間）
+    返回: 速度值 (pixels/frame)
+    """
+    if keypoints is None or prev_keypoints is None:
+        return 0
+    
+    if len(keypoints) < 17 or len(prev_keypoints) < 17:
+        return 0
+    
+    # 右手腕 (index 10)
+    wrist = keypoints[10]
+    prev_wrist = prev_keypoints[10]
+    
+    if wrist[0] <= 0 or prev_wrist[0] <= 0:
+        return 0
+    
+    speed = np.linalg.norm(wrist - prev_wrist)
+    return speed
+
+
+def calculate_body_lean(keypoints):
+    """
+    計算身體後仰角度（肩-髖-腳踝）
+    返回: 後仰角度 (度)，0度 = 完全直立
+    """
+    if keypoints is None or len(keypoints) < 17:
+        return 0
+    
+    shoulder = keypoints[6]  # R_Shoulder
+    hip = keypoints[12]      # R_Hip
+    ankle = keypoints[16]    # R_Ankle
+    
+    # 檢查關鍵點有效性
+    if shoulder[0] <= 0 or hip[0] <= 0 or ankle[0] <= 0:
+        return 0
+    
+    # 計算角度
+    vector1 = shoulder - hip
+    vector2 = ankle - hip
+    
+    cos_angle = np.dot(vector1, vector2) / (np.linalg.norm(vector1) * np.linalg.norm(vector2) + 1e-6)
+    cos_angle = np.clip(cos_angle, -1, 1)
+    angle = np.degrees(np.arccos(cos_angle))
+    
+    # 返回偏離直立的角度
+    return abs(180 - angle)
+
+
+def calculate_shoulder_rotation(keypoints):
+    """
+    計算肩膀旋轉角度（左肩-右肩連線與水平線夾角）
+    返回: 旋轉角度 (度)
+    """
+    if keypoints is None or len(keypoints) < 17:
+        return 0
+    
+    l_shoulder = keypoints[5]  # L_Shoulder
+    r_shoulder = keypoints[6]  # R_Shoulder
+    
+    if l_shoulder[0] <= 0 or r_shoulder[0] <= 0:
+        return 0
+    
+    dx = r_shoulder[0] - l_shoulder[0]
+    dy = r_shoulder[1] - l_shoulder[1]
+    
+    angle = abs(np.degrees(np.arctan2(dy, dx)))
+    return angle
+
+
+def calculate_body_side_angle(keypoints):
+    """
+    計算身體側身角度（基於兩肩與兩髖的深度差異）
+    側身時，左右肩膀的 x 座標差距會變小（因為身體轉向側面）
+    
+    返回: 側身程度 (0-1)，1 表示完全側身，0 表示正面
+    """
+    if keypoints is None or len(keypoints) < 17:
+        return 0
+    
+    l_shoulder = keypoints[5]  # L_Shoulder
+    r_shoulder = keypoints[6]  # R_Shoulder
+    l_hip = keypoints[11]      # L_Hip
+    r_hip = keypoints[12]      # R_Hip
+    
+    # 檢查關鍵點有效性
+    if (l_shoulder[0] <= 0 or r_shoulder[0] <= 0 or 
+        l_hip[0] <= 0 or r_hip[0] <= 0):
+        return 0
+    
+    # 計算肩膀寬度和髖部寬度
+    shoulder_width = abs(r_shoulder[0] - l_shoulder[0])
+    hip_width = abs(r_hip[0] - l_hip[0])
+    
+    # 計算身體中心線（肩膀中點到髖部中點）
+    shoulder_center = (l_shoulder + r_shoulder) / 2
+    hip_center = (l_hip + r_hip) / 2
+    
+    # 正常情況下，肩寬應該相對較大
+    # 側身時，肩寬會變小（因為是側面視角）
+    # 這裡用比例來判斷側身程度
+    avg_width = (shoulder_width + hip_width) / 2
+    
+    # 如果平均寬度很小，表示側身
+    # 正面時寬度通常 > 100 pixels，側身時 < 50 pixels
+    if avg_width < 80:
+        side_angle = 1.0 - (avg_width / 80.0)  # 0-1 之間
+    else:
+        side_angle = 0.0
+    
+    return min(1.0, max(0.0, side_angle))
+
+
+def is_arm_raised(keypoints):
+    """
+    判斷手臂是否抬起（用於擊球準備動作）
+    手腕明顯高於肩膀時，判定為抬臂
+    
+    返回: True/False
+    """
+    if keypoints is None or len(keypoints) < 17:
+        return False
+    
+    r_shoulder = keypoints[6]  # R_Shoulder
+    r_wrist = keypoints[10]    # R_Wrist
+    
+    if r_shoulder[0] <= 0 or r_wrist[0] <= 0:
+        return False
+    
+    # 手腕 y 座標小於肩膀 y 座標（y軸向下為正）
+    # 表示手腕在肩膀上方
+    return r_wrist[1] < (r_shoulder[1] - 30)  # 至少高於肩膀 30 pixels
+
+
+def is_jumping(keypoints, threshold=0.85):
+    """
+    判斷是否處於跳躍狀態
+    返回: True/False
+    """
+    if keypoints is None or len(keypoints) < 17:
+        return False
+    
+    hip = keypoints[12]    # R_Hip
+    ankle = keypoints[16]  # R_Ankle
+    
+    if hip[0] <= 0 or ankle[0] <= 0:
+        return False
+    
+    # 如果髖部明顯高於正常站立高度（相對於腳踝）
+    # 正常站立時 hip_y > ankle_y，跳躍時差距縮小
+    return hip[1] < ankle[1] * threshold
+
+
+def classify_shot_type(keypoints, prev_keypoints):
+    """
+    根據姿勢特徵分類擊球類型
+    
+    改進版本：加入側身角度和抬臂判斷
+    - 側身 + 抬臂 = 可能是擊球動作（殺球/高遠/切球）
+    - 沒有側身或沒抬臂 = 可能只是移動
+    
+    Returns:
+        str: 'smash' (殺球), 'clear' (高遠球), 'drop' (切球/放小球), 'unknown'
+    """
+    if keypoints is None or prev_keypoints is None:
+        return 'unknown'
+    
+    if len(keypoints) < 17 or len(prev_keypoints) < 17:
+        return 'unknown'
+    
+    # === 核心判斷：側身 + 抬臂 ===
+    side_angle = calculate_body_side_angle(keypoints)
+    arm_raised = is_arm_raised(keypoints)
+    
+    # 如果沒有側身且沒有抬臂，直接判定為非擊球動作
+    if side_angle < 0.3 and not arm_raised:
+        return 'unknown'
+    
+    # 1. 計算手腕速度（揮拍速度）
+    wrist_speed = calculate_wrist_speed(keypoints, prev_keypoints)
+    
+    # 2. 手臂伸展角度（手肘角度）
+    r_shoulder = keypoints[6]
+    r_elbow = keypoints[8]
+    r_wrist = keypoints[10]
+    elbow_angle = angle_3points(r_shoulder, r_elbow, r_wrist)
+    
+    # 3. 身體後仰角度
+    body_lean = calculate_body_lean(keypoints)
+    
+    # 4. 是否跳躍
+    jumping = is_jumping(keypoints)
+    
+    # 5. 肩膀旋轉角度
+    shoulder_rotation = calculate_shoulder_rotation(keypoints)
+    
+    # === 分類邏輯（加入側身考量）===
+    
+    # 殺球特徵：側身 + 抬臂 + 高速 + 跳躍 + 大幅後仰 + 手臂完全伸直
+    if (side_angle > 0.4 and 
+        arm_raised and
+        wrist_speed > 25 and 
+        jumping and 
+        body_lean > 20 and 
+        elbow_angle > 155):
+        return 'smash'
+    
+    # 高遠球：側身 + 抬臂 + 中速 + 手臂伸直 + 明顯後仰 + 無跳躍
+    elif (side_angle > 0.3 and
+          arm_raised and
+          wrist_speed > 15 and 
+          wrist_speed < 35 and
+          elbow_angle > 150 and 
+          body_lean > 12 and 
+          not jumping):
+        return 'clear'
+    
+    # 切球/放小球：側身 + 抬臂 + 低速 + 手臂未完全伸直 + 小後仰
+    elif (side_angle > 0.3 and
+          arm_raised and
+          wrist_speed < 22 and 
+          elbow_angle < 155 and 
+          body_lean < 18):
+        return 'drop'
+    
+    else:
+        return 'unknown'
+
+
 def angle_3points(p1, p2, p3):
     """
     計算三點形成的角度 (以 p2 為頂點)
@@ -315,6 +545,11 @@ def main():
     
     frame_id = 0
     start_time = time.time()
+    prev_keypoints = None
+    wrist_speeds = []
+    shot_detected = False
+    shot_type = 'unknown'
+    shot_cooldown = 0  # 防止重複偵測
     
     while True:
         ret, frame = cap.read()
@@ -340,7 +575,42 @@ def main():
             # 繪製骨架連線
             draw_skeleton(frame, kpts)
         
-        # === 2. 球場線條 ===
+        # === 2. 擊球瞬間偵測 ===
+        if keypoints is not None and prev_keypoints is not None:
+            wrist_speed = calculate_wrist_speed(keypoints, prev_keypoints)
+            wrist_speeds.append(wrist_speed)
+            
+            # 偵測速度峰值（擊球瞬間）
+            if shot_cooldown <= 0 and wrist_speed > 20:  # 速度閾值
+                # 檢查是否為局部最大值
+                if len(wrist_speeds) >= 3:
+                    if wrist_speeds[-2] > wrist_speeds[-3] and wrist_speeds[-2] > wrist_speeds[-1]:
+                        # 偵測到擊球瞬間
+                        shot_detected = True
+                        shot_type = classify_shot_type(prev_keypoints, keypoints)
+                        shot_cooldown = 30  # 30幀內不再偵測（約1秒）
+                        
+                        print(f"\n🎯 Frame {frame_id}: 偵測到擊球! 類型: {shot_type.upper()}")
+                        print(f"   手腕速度: {wrist_speeds[-2]:.1f} px/frame")
+        
+        # 冷卻計時器遞減
+        if shot_cooldown > 0:
+            shot_cooldown -= 1
+            
+            # 在冷卻期間顯示偵測結果
+            if shot_cooldown > 20:  # 顯示10幀
+                shot_color = {
+                    'smash': (0, 0, 255),    # 紅色
+                    'clear': (0, 255, 0),    # 綠色
+                    'drop': (255, 0, 0),     # 藍色
+                    'unknown': (128, 128, 128)
+                }.get(shot_type, (255, 255, 255))
+                
+                cv2.putText(frame, f"SHOT: {shot_type.upper()}", 
+                           (w//2 - 150, 100),
+                           cv2.FONT_HERSHEY_SIMPLEX, 1.5, shot_color, 4)
+        
+        # === 3. 球場線條 ===
         if COURT_CORNERS is not None:
             frame = draw_court_lines(frame, COURT_CORNERS)
         
@@ -360,6 +630,10 @@ def main():
         
         # 寫入輸出
         out.write(frame)
+        
+        # 更新前一幀關鍵點
+        if keypoints is not None:
+            prev_keypoints = keypoints.copy()
         
         # 顯示進度
         if frame_id % 100 == 0:
