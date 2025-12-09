@@ -203,7 +203,7 @@ def main():
         # --- 1) YOLO Pose 抓「人」 + skeleton ---
         person_boxes = []  # 存所有人的 bbox（不管在不在場內，用來過濾球）
 
-        results = people_model(frame, conf=0.5, verbose=False)
+        results = people_model(frame, conf=0.5, imgsz=1280, verbose=False)
         result = results[0]
 
         has_kpts = (getattr(result, "keypoints", None) is not None)
@@ -213,6 +213,9 @@ def main():
         else:
             kpts_all = None
 
+        # 先收集所有人的資訊
+        all_persons = []  # 存所有人的資訊 (index, bbox, conf, in_court)
+        
         for i, box in enumerate(result.boxes):
             cls_id = int(box.cls[0])
             conf = float(box.conf[0])
@@ -225,29 +228,93 @@ def main():
             # 不論在不在場內，都要記錄，之後拿來排除球的 candidate
             person_boxes.append((x1i, y1i, x2i, y2i))
 
-            # 用 bbox 底部兩點決定「人是否在場內」（原本邏輯）
-            bl = (x1i, y2i)  # bottom-left
-            br = (x2i, y2i)  # bottom-right
-            in_bl = point_in_court(*bl, court_contour)
-            in_br = point_in_court(*br, court_contour)
-            inside_person = in_bl and in_br  # 兩隻腳都在場內
+            # 用骨架的腳踝關鍵點來判斷是否在場內（更準確）
+            inside_person = False
+            bl = (x1i, y2i)  # 預設用 bbox 底部
+            br = (x2i, y2i)
+            
+            if has_kpts and i < len(kpts_all):
+                kpts = kpts_all[i].cpu().numpy()  # (17, 2)
+                # COCO keypoints: 15=左腳踝, 16=右腳踝
+                left_ankle = kpts[15]   # (x, y)
+                right_ankle = kpts[16]  # (x, y)
+                
+                # 更新視覺化位置（使用實際腳踝）
+                if left_ankle[0] > 0 and left_ankle[1] > 0:
+                    bl = (int(left_ankle[0]), int(left_ankle[1]))
+                    if point_in_court(left_ankle[0], left_ankle[1], court_contour):
+                        inside_person = True
+                        
+                if right_ankle[0] > 0 and right_ankle[1] > 0:
+                    br = (int(right_ankle[0]), int(right_ankle[1]))
+                    if point_in_court(right_ankle[0], right_ankle[1], court_contour):
+                        inside_person = True
+            else:
+                # 如果沒有骨架資訊，fallback 到 bbox 底部兩點
+                in_bl = point_in_court(*bl, court_contour)
+                in_br = point_in_court(*br, court_contour)
+                inside_person = in_bl or in_br  # 只要任一點在場內就算
 
-            if not inside_person:
-                continue
+            # 計算 bbox 面積
+            bbox_area = (x2i - x1i) * (y2i - y1i)
+            
+            all_persons.append({
+                'index': i,
+                'bbox': (x1i, y1i, x2i, y2i),
+                'conf': conf,
+                'in_court': inside_person,
+                'area': bbox_area,
+                'bl': bl,
+                'br': br
+            })
 
+        # 決定要畫哪一個人的優先順序：
+        # 1. 最優先：腳踝在場內的人（如果有多個，選面積最大的）
+        # 2. 次要：如果沒有人的腳踝在場內，才選面積最大的
+        selected_person = None
+        persons_in_court = [p for p in all_persons if p['in_court']]
+        
+        # Debug: 打印所有人的資訊
+        if frame_idx % 30 == 0 and all_persons:  # 每30幀打印一次
+            print(f"\n=== Frame {frame_idx} ===")
+            for idx, p in enumerate(all_persons):
+                print(f"Person {idx}: in_court={p['in_court']}, area={p['area']}, conf={p['conf']:.2f}")
+            print(f"Persons in court: {len(persons_in_court)}")
+        
+        if persons_in_court:
+            # 優先：有人在場內，選其中面積最大的
+            selected_person = max(persons_in_court, key=lambda p: p['area'])
+        elif all_persons:
+            # 次要：沒有人在場內，選所有人中面積最大的
+            selected_person = max(all_persons, key=lambda p: p['area'])
+        
+        # 畫選中的人
+        if selected_person:
+            i = selected_person['index']
+            x1i, y1i, x2i, y2i = selected_person['bbox']
+            conf = selected_person['conf']
+            bl = selected_person['bl']
+            br = selected_person['br']
+            in_court = selected_person['in_court']
+            
+            # 根據是否在場內選擇不同顏色
+            color = (0, 255, 0) if in_court else (0, 165, 255)  # 綠色=場內，橘色=場外
+            
             # 1) 畫人框 + 底部兩點
-            cv2.rectangle(frame, (x1i, y1i), (x2i, y2i), (0, 255, 0), 2)
-            cv2.circle(frame, bl, 3, (0, 255, 0), -1)
-            cv2.circle(frame, br, 3, (0, 255, 0), -1)
-            cv2.putText(frame, f"person {conf:.2f}",
+            cv2.rectangle(frame, (x1i, y1i), (x2i, y2i), color, 2)
+            cv2.circle(frame, bl, 3, color, -1)
+            cv2.circle(frame, br, 3, color, -1)
+            
+            status_text = "IN COURT" if in_court else "OUT (Largest)"
+            cv2.putText(frame, f"person {conf:.2f} [{status_text}]",
                         (x1i, max(0, y1i - 5)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6,
-                        (0, 255, 0), 2)
+                        color, 2)
 
-            # 2) 對「在場內的人」畫 skeleton
+            # 2) 對選中的人畫 skeleton
             if has_kpts:
                 kpts = kpts_all[i].cpu().numpy()  # (17, 2)
-                draw_skeleton(frame, kpts, color=(0, 255, 255))
+                draw_skeleton(frame, kpts, color=color)
 
         # --- 2) 找球（motion-based） ---
         ball_pos, ball_bbox, gray, debug_vis, cand_boxes = find_ball_motion(
