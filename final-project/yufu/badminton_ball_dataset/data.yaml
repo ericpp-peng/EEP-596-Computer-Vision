@@ -1,0 +1,14 @@
+# YOLOv8 羽球偵測訓練設定檔
+# 使用方法：yolo train data=data.yaml model=yolov8n.pt
+
+# 資料集路徑（相對於此檔案）
+path: /Users/eric/Documents/UW 修課/2025 fall/EEP 596A CV/EEP-596-Computer-Vision/final-project/yufu/badminton_ball_dataset
+train: images/train
+val: images/val
+
+# 類別數量
+nc: 1
+
+# 類別名稱
+names:
+  0: shuttlecock
