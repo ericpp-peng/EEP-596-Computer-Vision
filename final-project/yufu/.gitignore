@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Data files
+*.npy
+*.zip
+nohup.out
+
+# Video files (too large for git)
+*.mp4
+*.avi
+
+# Model weights (download separately)
+*.pt
+!yolov8n.pt
+!yolov8n-pose.pt
+
+# Training outputs
+runs/
+result/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Temporary files
+*.log
+*.tmp

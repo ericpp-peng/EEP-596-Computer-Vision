@@ -151,8 +151,8 @@ def extract_diverse_frames(video_path, num_frames=30, output_dir="badminton_ball
     print(f"\n📂 圖片位置：")
     print(f"   Train: {train_dir}")
     print(f"   Val: {val_dir}")
-    print(f"\n🎯 下一步：使用 LabelImg 標註這些圖片")
-    print(f"   指令：labelImg {train_dir}")
+    print(f"\n🎯 下一步：使用 simple_annotator.py 標註這些圖片")
+    print(f"   指令：python simple_annotator.py train")
     print(f"   記得選擇 YOLO 格式！")
 
 

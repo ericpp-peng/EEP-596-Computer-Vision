@@ -46,7 +46,7 @@ def train_shuttlecock_detector(
         print(f"❌ 找不到資料集設定檔：{data_yaml}")
         print(f"\n請確認：")
         print(f"1. 已經用 extract_frames_for_annotation.py 擷取圖片")
-        print(f"2. 已經用 LabelImg 標註完成")
+        print(f"2. 已經用 simple_annotator.py 標註完成")
         print(f"3. 標註檔 (.txt) 已放在 labels/train 和 labels/val")
         return None
     

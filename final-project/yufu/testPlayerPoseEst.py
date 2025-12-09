@@ -5,6 +5,8 @@ import torch.serialization
 from ultralytics import YOLO
 import time
 from collections import deque
+import json
+from datetime import datetime
 
 # Fix for PyTorch 2.6+ weights_only loading issue
 torch.serialization.add_safe_globals(['ultralytics.nn.tasks.PoseModel'])
@@ -26,9 +28,10 @@ BALL_BOUNDARY_PATH = "./ball_boundary.npy"
 YOLO_WEIGHTS = "./yolov8n-pose.pt"
 
 # ⭐ 羽球偵測模型（新訓練的 YOLO 模型）
-SHUTTLECOCK_WEIGHTS = "./runs/detect/shuttlecock_train/weights/best.pt"
+SHUTTLECOCK_WEIGHTS = "./runs/detect/shuttlecock_improved_20251209_122742/weights/best.pt"
 USE_YOLO_SHUTTLECOCK = True  # 是否使用 YOLO 羽球偵測（可切換回差分偵測）
-SHUTTLECOCK_CONF = 0.25  # YOLO 羽球偵測的置信度門檻
+SHUTTLECOCK_CONF = 0.15  # ⭐ 降低置信度門檻（從 0.25 降到 0.15）讓更多候選被考慮
+SHOW_ALL_DETECTIONS = True  # ⭐ 顯示所有偵測結果（包括低信心度的）
 
 # 球偵測參數（請用你在滑桿小工具上調好的那組數值）
 BALL_DIFF_THRESH = 40      # ⭐ 大幅降低門檻值，提高敏感度（從 70 降到 40）
@@ -235,6 +238,83 @@ def draw_skeleton(frame, kpts, color=(0, 255, 255)):
         if x1 <= 0 or y1 <= 0 or x2 <= 0 or y2 <= 0:
             continue
         cv2.line(frame, (int(x1), int(y1)), (int(x2), int(y2)), color, 2)
+
+
+# ===================== AI 輔助判斷系統 =====================
+# 記錄檔案路徑
+SHOT_LOG_FILE = "./shot_annotations.json"
+
+def load_shot_history():
+    """載入歷史擊球記錄"""
+    try:
+        with open(SHOT_LOG_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except:
+        return []
+
+def save_shot_record(frame_idx, params, predicted_type, user_label=None):
+    """儲存擊球記錄"""
+    history = load_shot_history()
+    
+    # 將 numpy 類型轉換為 Python 原生類型
+    params_serializable = {}
+    for key, value in params.items():
+        if isinstance(value, (np.integer, np.floating)):
+            params_serializable[key] = float(value)
+        elif isinstance(value, np.ndarray):
+            params_serializable[key] = value.tolist()
+        else:
+            params_serializable[key] = value
+    
+    record = {
+        'timestamp': datetime.now().isoformat(),
+        'frame': int(frame_idx),
+        'parameters': params_serializable,
+        'predicted': predicted_type,
+        'user_label': user_label,
+        'correct': user_label == predicted_type if user_label else None
+    }
+    history.append(record)
+    with open(SHOT_LOG_FILE, 'w', encoding='utf-8') as f:
+        json.dump(history, f, indent=2, ensure_ascii=False)
+    return record
+
+def get_ai_suggestion(params):
+    """
+    基於歷史數據的 AI 建議（簡單版本）
+    未來可以升級為機器學習模型
+    """
+    history = load_shot_history()
+    if len(history) < 5:  # 數據不足，使用規則
+        return None, 0.0
+    
+    # 找到相似的歷史案例（有用戶標註的）
+    labeled_history = [h for h in history if h.get('user_label')]
+    if not labeled_history:
+        return None, 0.0
+    
+    # 簡單相似度匹配（可以改進為更複雜的 ML 模型）
+    similarities = []
+    for record in labeled_history:
+        hist_params = record['parameters']
+        # 計算參數相似度
+        slope_diff = abs(params['overall_slope'] - hist_params['overall_slope'])
+        vel_diff = abs(params['velocity'] - hist_params['velocity'])
+        pos_diff = abs(params['highest_position_ratio'] - hist_params['highest_position_ratio'])
+        
+        # 簡單加權相似度
+        similarity = 1.0 / (1.0 + slope_diff/50 + vel_diff/200 + pos_diff)
+        similarities.append((similarity, record['user_label']))
+    
+    # 找最相似的案例
+    if similarities:
+        similarities.sort(reverse=True)
+        best_match = similarities[0]
+        return best_match[1], best_match[0]  # (建議類型, 信心度)
+    
+    return None, 0.0
+
+# =============================================================
 
 
 def is_arm_raised(kpts):
@@ -680,12 +760,64 @@ def main():
                         last_y = tracking_points[-1][1]   # 結束位置的 y 座標
                         head_to_tail_dy = last_y - first_y  # 正值 = 往下降，負值 = 往上升
                     
-                    # === ⭐ 使用整個軌跡判斷擊球類型（從頭到尾） ===
+                    # === ⭐ 檢測球的轉折點（對方回擊）===
+                    # 檢測軌跡中是否有明顯的方向轉折（可能是對方接到球並回擊）
+                    has_turning_point = False
+                    turning_point_info = ""
                     
-                    # 1. 使用整個軌跡計算平均斜率（更準確）
-                    overall_slope = head_to_tail_dy  # 從頭到尾的 y 變化
+                    if len(tracking_points) >= 10:  # 至少需要10個點才能分析轉折
+                        # 計算每段的 y 方向變化
+                        y_changes = []
+                        for i in range(1, len(tracking_points)):
+                            dy_segment = tracking_points[i][1] - tracking_points[i-1][1]
+                            y_changes.append(dy_segment)
+                        
+                        # 檢測方向轉折：從下降變上升，或從上升變下降
+                        # 使用滑動窗口（5個點）來平滑化並檢測趨勢變化
+                        window_size = 5
+                        if len(y_changes) >= window_size * 2:
+                            for i in range(window_size, len(y_changes) - window_size):
+                                # 計算前後窗口的平均斜率
+                                before_slope = sum(y_changes[i-window_size:i]) / window_size
+                                after_slope = sum(y_changes[i:i+window_size]) / window_size
+                                
+                                # 檢測明顯的方向轉折（門檻值可調整）
+                                # 下降轉上升：before_slope > 10 且 after_slope < -10
+                                # 上升轉下降：before_slope < -10 且 after_slope > 10
+                                if (before_slope > 15 and after_slope < -15) or \
+                                   (before_slope < -15 and after_slope > 15):
+                                    has_turning_point = True
+                                    turning_point_frame = tracking_points[i][2]
+                                    turning_point_pos = i / len(tracking_points)
+                                    if before_slope > 15 and after_slope < -15:
+                                        turning_point_info = f"下降→上升 (位置:{turning_point_pos:.1%}, Frame:{turning_point_frame})"
+                                    else:
+                                        turning_point_info = f"上升→下降 (位置:{turning_point_pos:.1%}, Frame:{turning_point_frame})"
+                                    break  # 找到第一個轉折點即可
                     
-                    # 2. 計算最高點位置（用於判斷球的飛行軌跡）
+                    # === ⭐ 對於 Smash/Drop：只使用下降階段的軌跡（排除轉折後的上升） ===
+                    # 找到最低點（y 最大的點），只用從開始到最低點的軌跡
+                    if last_frames_low:  # 只有在判定為 Smash/Drop 時才需要過濾
+                        lowest_idx = max(range(len(tracking_points)), key=lambda i: tracking_points[i][1])
+                        # 只保留從起點到最低點的軌跡
+                        descent_points = tracking_points[:lowest_idx + 1]
+                    else:
+                        # Clear 的話使用完整軌跡
+                        descent_points = tracking_points
+                    
+                    # === ⭐ 使用軌跡判斷擊球類型 ===
+                    
+                    # 1. 使用過濾後的軌跡計算斜率
+                    overall_slope = 0
+                    if len(descent_points) >= 2:
+                        first_y = descent_points[0][1]
+                        last_y = descent_points[-1][1]
+                        overall_slope = last_y - first_y  # 正值 = 往下降，負值 = 往上升
+                    else:
+                        # 如果過濾後軌跡不足，使用完整軌跡
+                        overall_slope = head_to_tail_dy
+                    
+                    # 2. 計算最高點位置（使用完整軌跡）
                     min_y = min(pt[1] for pt in tracking_points)  # 最高點（y最小）
                     max_y = max(pt[1] for pt in tracking_points)  # 最低點（y最大）
                     y_range = max_y - min_y  # 垂直移動範圍
@@ -694,26 +826,187 @@ def main():
                     highest_idx = min(range(len(tracking_points)), key=lambda i: tracking_points[i][1])
                     highest_position_ratio = highest_idx / len(tracking_points)  # 最高點出現的相對位置（0-1）
                     
+                    # ⭐ 3.5 計算加速度（用於區分 Smash 和 Drop）
+                    # Smash 通常有明顯加速，Drop 則速度較平穩
+                    acceleration = 0
+                    if len(tracking_points) >= 20:
+                        # 比較前半和後半的平均速度
+                        mid_idx = len(tracking_points) // 2
+                        # 前半速度
+                        first_half_dist = 0
+                        for i in range(1, mid_idx):
+                            dx = tracking_points[i][0] - tracking_points[i-1][0]
+                            dy = tracking_points[i][1] - tracking_points[i-1][1]
+                            first_half_dist += np.hypot(dx, dy)
+                        first_half_speed = first_half_dist / mid_idx if mid_idx > 0 else 0
+                        
+                        # 後半速度
+                        second_half_dist = 0
+                        for i in range(mid_idx, len(tracking_points)):
+                            dx = tracking_points[i][0] - tracking_points[i-1][0]
+                            dy = tracking_points[i][1] - tracking_points[i-1][1]
+                            second_half_dist += np.hypot(dx, dy)
+                        second_half_frames = len(tracking_points) - mid_idx
+                        second_half_speed = second_half_dist / second_half_frames if second_half_frames > 0 else 0
+                        
+                        # 加速度 = 後半速度 - 前半速度（正值表示加速）
+                        acceleration = second_half_speed - first_half_speed
+                    
                     # 4. ⭐ 綜合判斷擊球類型
                     # - Clear（高遠球）：整體向上或前期向上
-                    # - Smash（殺球）：整體快速向下
-                    # - Drop（切球）：整體緩慢向下
+                    # - Smash（殺球）：整體快速向下 + 有明顯加速
+                    # - Drop（切球）：整體緩慢向下 + 無明顯加速
                     
-                    if overall_slope < -30:  # 整體向上超過30像素 → 高遠球
+                    # === 決策樹開始 ===
+                    print("\n" + "="*60)
+                    print(f"🎯 Frame {frame_idx}: 擊球分類決策樹")
+                    print("="*60)
+                    print(f"📊 分析參數:")
+                    print(f"   - overall_slope (頭尾y變化): {overall_slope:.2f}")
+                    if last_frames_low and len(descent_points) < len(tracking_points):
+                        print(f"     ⚠️  使用下降階段軌跡 (排除轉折後上升): {len(descent_points)}/{len(tracking_points)} 幀")
+                    print(f"   - highest_position_ratio (最高點位置): {highest_position_ratio:.2f}")
+                    print(f"   - velocity (速度): {velocity:.2f} px/s")
+                    print(f"   - acceleration (加速度): {acceleration:.2f} px/frame")
+                    print(f"   - y_range (垂直範圍): {y_range:.2f}")
+                    print(f"   - high_ball_ratio (高處停留比例): {high_ball_ratio:.2f}")
+                    print(f"   - last_frames_low (最後5幀在低處): {last_frames_low}")
+                    print(f"   - has_turning_point (軌跡有轉折): {has_turning_point}")
+                    if has_turning_point:
+                        print(f"     🔄 轉折資訊: {turning_point_info}")
+                        print(f"     ⚠️  可能是對方回擊的球！")
+                    print(f"\n🌲 決策過程:")
+                    
+                    # 先檢查最後5幀是否在低處 → 如果是，排除 Clear
+                    if last_frames_low:
+                        print(f"   ✓ last_frames_low = True (最後5幀有3幀以上在y>400)")
+                        print(f"   → 排除 Clear（高遠球不應該結束在低處）")
+                        if overall_slope > 80:  # ⭐ 提高門檻到80（更明顯的下降才判斷為攻擊球）
+                            print(f"   ✓ overall_slope ({overall_slope:.2f}) > 80")
+                            # ⭐ 使用加速度區分 Smash 和 Drop
+                            if acceleration > 2 or velocity > 550:  # 有加速或高速度 → 殺球
+                                shot_type = "Smash"
+                                print(f"      ✓ acceleration ({acceleration:.2f}) > 2 或 velocity ({velocity:.2f}) > 550")
+                                print(f"      → 有加速或高速度 → Smash (殺球)")
+                            else:
+                                shot_type = "Drop"  # 無加速且低速度 → 切球
+                                print(f"      ✗ acceleration ({acceleration:.2f}) <= 2 且 velocity ({velocity:.2f}) <= 550")
+                                print(f"      → 無加速且速度較低 → Drop (切球)")
+                        else:
+                            print(f"   ✗ overall_slope ({overall_slope:.2f}) <= 80")
+                            # 下降不明顯，以 Drop 為主
+                            shot_type = "Drop"
+                            print(f"      → 下降不明顯 → Drop (切球)")
+                    elif overall_slope < -30:  # 整體向上超過30像素 → 高遠球
                         shot_type = "Clear"
+                        print(f"   ✗ last_frames_low = False")
+                        print(f"   ✓ overall_slope ({overall_slope:.2f}) < -30")
+                        print(f"   → 整體向上超過30像素 → Clear (高遠球)")
                     elif highest_position_ratio < 0.3:  # 最高點在前30% → 高遠球（球先上升）
                         shot_type = "Clear"
-                    elif overall_slope > 50:  # 整體明顯下降 → 殺球或切球
-                        if velocity > 500:
-                            shot_type = "Smash"  # 快速下降 → 殺球
+                        print(f"   ✗ last_frames_low = False")
+                        print(f"   ✗ overall_slope ({overall_slope:.2f}) >= -30")
+                        print(f"   ✓ highest_position_ratio ({highest_position_ratio:.2f}) < 0.3")
+                        print(f"   → 最高點在前30% → Clear (高遠球)")
+                    elif overall_slope > 80:  # ⭐ 提高門檻
+                        print(f"   ✗ last_frames_low = False")
+                        print(f"   ✗ overall_slope ({overall_slope:.2f}) >= -30")
+                        print(f"   ✗ highest_position_ratio ({highest_position_ratio:.2f}) >= 0.3")
+                        print(f"   ✓ overall_slope ({overall_slope:.2f}) > 80")
+                        # ⭐ 使用加速度區分
+                        if acceleration > 2 or velocity > 550:
+                            shot_type = "Smash"
+                            print(f"      ✓ acceleration ({acceleration:.2f}) > 2 或 velocity ({velocity:.2f}) > 550")
+                            print(f"      → Smash (殺球)")
                         else:
-                            shot_type = "Drop"   # 緩慢下降 → 切球
+                            shot_type = "Drop"
+                            print(f"      ✗ acceleration ({acceleration:.2f}) <= 2 且 velocity ({velocity:.2f}) <= 550")
+                            print(f"      → Drop (切球)")
                     else:
                         # 整體變化不大或輕微下降 → 根據速度判斷
+                        print(f"   ✗ last_frames_low = False")
+                        print(f"   ✗ overall_slope ({overall_slope:.2f}) >= -30")
+                        print(f"   ✗ highest_position_ratio ({highest_position_ratio:.2f}) >= 0.3")
+                        print(f"   ✗ overall_slope ({overall_slope:.2f}) <= 80")
+                        print(f"   → 整體變化不大或輕微下降，根據速度判斷:")
                         if velocity > 600:
                             shot_type = "Smash"
+                            print(f"      ✓ velocity ({velocity:.2f}) > 600")
+                            print(f"      → Smash (殺球)")
                         else:
                             shot_type = "Clear"
+                            print(f"      ✗ velocity ({velocity:.2f}) <= 600")
+                            print(f"      → Clear (高遠球)")
+                    
+                    # === AI 輔助建議 ===
+                    params_dict = {
+                        'overall_slope': overall_slope,
+                        'highest_position_ratio': highest_position_ratio,
+                        'velocity': velocity,
+                        'acceleration': acceleration,
+                        'y_range': y_range,
+                        'high_ball_ratio': high_ball_ratio,
+                        'last_frames_low': last_frames_low,
+                        'has_turning_point': has_turning_point,
+                        'turning_point_info': turning_point_info if has_turning_point else ""
+                    }
+                    
+                    ai_suggestion, confidence = get_ai_suggestion(params_dict)
+                    
+                    print(f"\n🤖 AI 建議:")
+                    if ai_suggestion and confidence > 0.5:
+                        print(f"   根據歷史數據建議: {ai_suggestion} (信心度: {confidence:.2f})")
+                        if ai_suggestion != shot_type:
+                            print(f"   ⚠️  AI建議與規則判斷不同！規則={shot_type}, AI={ai_suggestion}")
+                    else:
+                        print(f"   歷史數據不足，使用規則判斷")
+                    
+                    print(f"\n🏸 最終結果: {shot_type}")
+                    print("="*60)
+                    print(f"\n💡 提示: 按鍵標註正確答案 (標註後按 Space 繼續)")
+                    print(f"   [C] = Clear  [S] = Smash  [D] = Drop  [Space] = 接受當前判斷")
+                    print("-"*60 + "\n")
+                    
+                    # 暫停並等待用戶標註
+                    cv2.putText(frame, "Press: [C]Clear [S]Smash [D]Drop [Space]Accept", 
+                               (50, h - 80), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
+                    cv2.putText(frame, f"AI Predicted: {shot_type}", 
+                               (50, h - 40), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2)
+                    
+                    cv2.imshow("Badminton Analysis", frame)
+                    
+                    user_label = None
+                    while True:
+                        key = cv2.waitKey(0) & 0xFF
+                        if key == ord('c') or key == ord('C'):
+                            user_label = "Clear"
+                            print(f"✅ 用戶標註: Clear")
+                            break
+                        elif key == ord('s') or key == ord('S'):
+                            user_label = "Smash"
+                            print(f"✅ 用戶標註: Smash")
+                            break
+                        elif key == ord('d') or key == ord('D'):
+                            user_label = "Drop"
+                            print(f"✅ 用戶標註: Drop")
+                            break
+                        elif key == ord(' '):  # Space = 接受AI判斷
+                            user_label = shot_type
+                            print(f"✅ 接受AI判斷: {shot_type}")
+                            break
+                        elif key == ord('q') or key == ord('Q'):
+                            print("⏭️  跳過標註")
+                            break
+                    
+                    # 儲存記錄
+                    if user_label:
+                        save_shot_record(frame_idx, params_dict, shot_type, user_label)
+                        if user_label == shot_type:
+                            print(f"✓ 判斷正確！")
+                        else:
+                            print(f"✗ 判斷錯誤！正確答案是 {user_label}，系統判斷為 {shot_type}")
+                    
+                    print("\n" + "="*60 + "\n")
                     
                     shot_detected = True
                     shot_display_timer = 75  # 顯示 75 幀（2.5秒），配合 45 幀追蹤時間
@@ -912,9 +1205,32 @@ def main():
                 half=True if device == 'mps' else False
             )[0]
             
+            # ⭐ 顯示偵測資訊（每 30 幀）
+            if frame_idx % 30 == 0 and len(shuttlecock_results.boxes) > 0:
+                print(f"\n🔍 Frame {frame_idx}: 偵測到 {len(shuttlecock_results.boxes)} 個候選球")
+                for idx, box in enumerate(shuttlecock_results.boxes):
+                    conf = box.conf[0].cpu().numpy()
+                    x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
+                    print(f"   候選 {idx+1}: conf={conf:.3f}, pos=({(x1+x2)/2:.0f}, {(y1+y2)/2:.0f})")
+            
             # 處理 YOLO 偵測結果
+            all_detections = []  # 儲存所有偵測結果用於顯示
             if len(shuttlecock_results.boxes) > 0:
                 boxes = shuttlecock_results.boxes
+                
+                # ⭐ 收集所有偵測結果（包括被過濾的）用於調試
+                for idx, box in enumerate(boxes):
+                    x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
+                    cx = (x1 + x2) / 2
+                    cy = (y1 + y2) / 2
+                    conf = box.conf[0].cpu().numpy()
+                    all_detections.append({
+                        'bbox': (int(x1), int(y1), int(x2-x1), int(y2-y1)),
+                        'center': (cx, cy),
+                        'conf': float(conf),
+                        'filtered': False,
+                        'reason': None
+                    })
                 
                 # 找最佳候選球（離預測位置最近或面積最大）
                 best_idx = None
@@ -929,12 +1245,18 @@ def main():
                     # 過濾條件
                     # 1. 在球場範圍內
                     if not (x_min_ball <= cx <= x_max_ball):
+                        all_detections[idx]['filtered'] = True
+                        all_detections[idx]['reason'] = 'out_of_court'
                         continue
                     # 2. 不在人身上
                     if any(point_in_box(cx, cy, pb) for pb in person_boxes):
+                        all_detections[idx]['filtered'] = True
+                        all_detections[idx]['reason'] = 'on_person'
                         continue
                     # 3. y 軸範圍限制
                     if cy < MIN_BALL_Y or cy > MAX_BALL_Y:
+                        all_detections[idx]['filtered'] = True
+                        all_detections[idx]['reason'] = f'y_range({cy:.0f})'
                         continue
                     
                     # 記錄候選框（用於後續顯示）
@@ -1255,34 +1577,15 @@ def main():
                 print(f"   Frame {frame_idx} (等待期 {frames_since_raise+1}/5): 跳過...")
 
         # === 即時顯示資訊（左上角） ===
-        # 優先顯示擊球偵測結果，否則顯示球的即時數據
+        # 只顯示球的即時數據，擊球結果移到畫面下方
         display_info = []
         
-        if shot_display_timer > 0 and trajectory_info:
-            # 顯示擊球偵測結果
-            vel = trajectory_info.get('velocity', 0)
-            dy_total = trajectory_info.get('dy', 0)
-            high_ratio = trajectory_info.get('high_ball_ratio', 0)
-            
-            # 計算頭尾 y 變化（從 tracking_points 取得）
-            head_to_tail_dy = 0
-            if len(tracking_points) >= 2:
-                head_to_tail_dy = tracking_points[-1][1] - tracking_points[0][1]
-            
-            display_info = [
-                f"SHOT DETECTED: {shot_type}",
-                f"Delta-Y: {dy_total:.1f} px ({'up' if dy_total < 0 else 'down'})",
-                f"Velocity: {vel:.1f} px/s",
-                f"High Ball: {high_ratio:.1%}",
-                f"Head-Tail Y: {head_to_tail_dy:.1f} px",
-                f"Tracked: {len(tracking_points)} points"
-            ]
-        elif ball_info_text:
+        if ball_info_text:
             # 顯示球的即時數據
             display_info = ball_info_text
         
         if display_info:
-            # 半透明背景（縮小範圍避免遮擋）
+            # 半透明背景
             overlay = frame.copy()
             cv2.rectangle(overlay, (10, 10), (350, 10 + 28 * len(display_info)), (0, 0, 0), -1)
             cv2.addWeighted(overlay, 0.7, frame, 0.3, 0, frame)
@@ -1300,33 +1603,106 @@ def main():
         cv2.putText(frame, frame_text, (int(w - 250), 35),
                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
         
-        # === 顯示擊球偵測結果（中間上方大字，最後繪製確保不被覆蓋）===
+        # === ⭐ 顯示擊球偵測結果（畫面上方中央，最後繪製確保不被覆蓋）===
         if shot_display_timer > 0:
-            print(f"🎯 Frame {frame_idx}: 正在顯示擊球結果 (timer={shot_display_timer}, type={shot_type})")
-            
-            # 繪製醒目的紅色背景矩形（中間上方）
-            box_x1 = int(w//2 - 300)
-            box_x2 = int(w//2 + 300)
-            box_y1 = 20
-            box_y2 = 180
-            
-            cv2.rectangle(frame, (box_x1, box_y1), (box_x2, box_y2), (0, 0, 255), -1)
-            # 白色邊框
-            cv2.rectangle(frame, (box_x1, box_y1), (box_x2, box_y2), (255, 255, 255), 5)
-            
-            # 主要文字（白色，大字）
-            text_x = int(w//2 - 280)
-            cv2.putText(frame, "SHOT DETECTED!", 
-                       (text_x, 85),
-                       cv2.FONT_HERSHEY_SIMPLEX, 1.8, (255, 255, 255), 5)
-            
-            # 擊球類型（黃色，更大）
-            type_x = int(w//2 - 200)
-            cv2.putText(frame, f"Type: {shot_type}", 
-                       (type_x, 145),
-                       cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 255), 4)
+            # 只有當 trajectory_info 存在時才顯示
+            if trajectory_info:
+                # ⭐ 計算顯示位置（畫面上方中央）
+                panel_width = 500
+                panel_x = (w - panel_width) // 2  # 中央位置
+                panel_y = 60  # 從上方 60px 開始（避開其他資訊）
+                
+                # 顯示擊球資訊
+                vel = trajectory_info.get('velocity', 0)
+                dy_total = trajectory_info.get('dy', 0)
+                high_ratio = trajectory_info.get('high_ball_ratio', 0)
+                
+                # 計算頭尾 y 變化
+                head_to_tail_dy = 0
+                if len(tracking_points) >= 2:
+                    head_to_tail_dy = tracking_points[-1][1] - tracking_points[0][1]
+                
+                shot_info = [
+                    f"SHOT DETECTED: {shot_type}",
+                    f"Delta-Y: {dy_total:.1f} px ({'UP' if dy_total < 0 else 'DOWN'})",
+                    f"Velocity: {vel:.1f} px/s",
+                    f"High Ball Ratio: {high_ratio:.1%}",
+                    f"Head-Tail Y: {head_to_tail_dy:.1f} px",
+                    f"Tracked Points: {len(tracking_points)}"
+                ]
+                
+                line_height = 30
+                panel_height = 20 + len(shot_info) * line_height
+                
+                # 繪製半透明深色背景
+                overlay = frame.copy()
+                cv2.rectangle(overlay, (panel_x, panel_y), 
+                            (panel_x + panel_width, panel_y + panel_height), 
+                            (0, 0, 0), -1)
+                cv2.addWeighted(overlay, 0.85, frame, 0.15, 0, frame)
+                
+                # 顯示每一行（醒目的黃色文字，較大字體）
+                for idx, text in enumerate(shot_info):
+                    y_pos = panel_y + 25 + idx * line_height
+                    # 第一行（SHOT DETECTED）用更大更亮的顏色
+                    if idx == 0:
+                        cv2.putText(frame, text, (panel_x + 15, y_pos),
+                                   cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 3)
+                    else:
+                        cv2.putText(frame, text, (panel_x + 15, y_pos),
+                                   cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 255, 255), 2)
             
             shot_display_timer -= 1
+
+        # ⭐ 顯示所有 YOLO 偵測結果（統一在畫面上方中央）
+        if SHOW_ALL_DETECTIONS and 'all_detections' in locals() and all_detections:
+            # 只顯示黃線內的候選球
+            valid_detections = [det for det in all_detections 
+                              if x_min_ball <= det['center'][0] <= x_max_ball]
+            
+            if valid_detections:
+                # 在畫面上方中央繪製偵測資訊面板
+                panel_width = 400
+                panel_x = (w - panel_width) // 2  # 中央位置
+                panel_y = 10
+                line_height = 22
+                panel_height = 30 + len(valid_detections) * line_height
+                
+                # 繪製半透明背景
+                overlay = frame.copy()
+                cv2.rectangle(overlay, (panel_x, panel_y), 
+                            (panel_x + panel_width, panel_y + panel_height), 
+                            (0, 0, 0), -1)
+                cv2.addWeighted(overlay, 0.75, frame, 0.25, 0, frame)
+                
+                # 標題
+                cv2.putText(frame, f"Ball Detections ({len(valid_detections)})", 
+                           (panel_x + 10, panel_y + 20),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+                
+                # 顯示每個偵測結果
+                for idx, det in enumerate(valid_detections):
+                    ball_x, ball_y, ball_w, ball_h = det['bbox']
+                    cx, cy = det['center']
+                    conf = det['conf']
+                    filtered = det['filtered']
+                    reason = det['reason']
+                    
+                    # 被過濾的用橘色，未過濾的用綠色
+                    color = (0, 165, 255) if filtered else (0, 255, 0)
+                    
+                    # 顯示文字資訊
+                    status = f"FILTERED ({reason})" if filtered else "SELECTED"
+                    label = f"{idx+1}. ({int(cx)},{int(cy)}) conf:{conf:.2f} [{status}]"
+                    
+                    y_pos = panel_y + 45 + idx * line_height
+                    cv2.putText(frame, label, (panel_x + 15, y_pos),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 1)
+                    
+                    # 在球位置畫對應序號的小圓點
+                    cv2.circle(frame, (int(cx), int(cy)), 8, color, 2)
+                    cv2.putText(frame, str(idx+1), (int(cx)-5, int(cy)+5),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
         # --- 3) 寫出 + 即時顯示 ---
         out.write(frame)
