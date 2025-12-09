@@ -26,10 +26,10 @@ BALL_BOUNDARY_PATH = "./ball_boundary.npy"
 YOLO_WEIGHTS = "./yolov8n-pose.pt"
 
 # 球偵測參數（請用你在滑桿小工具上調好的那組數值）
-BALL_DIFF_THRESH = 72
-BALL_BRIGHT_THRESH = 255   # 如果 use_brightness=False，這個只影響 debug，不影響 candidate
+BALL_DIFF_THRESH = 90
+BALL_BRIGHT_THRESH = 200   # 如果 use_brightness=False，這個只影響 debug，不影響 candidate
 BALL_MIN_AREA = 5
-BALL_MAX_AREA = 95
+BALL_MAX_AREA = 60
 USE_BRIGHTNESS = False     # ⭐ False = 只看差分（比較接近你 slider 的直覺）
 # =============================================================
 
@@ -46,12 +46,18 @@ KPT_PAIRS = [
 
 
 def find_ball_motion(frame, prev_gray=None, last_pos=None,
-                     diff_thresh=25,      # 差分閾值
-                     bright_thresh=200,   # 亮度閾值 (0-255)
-                     min_area=5, max_area=400,
-                     use_brightness=True):
+                     diff_thresh=25,      # 差分閾值：判斷像素變化的門檻
+                     bright_thresh=200,   # 亮度閾值：判斷像素是否夠亮 (0-255)
+                     min_area=5, max_area=400,  # 候選球的面積範圍（過濾雜訊）
+                     use_brightness=True):  # 是否同時考慮亮度條件
     """
     利用前後幀差分 +（可選）亮度 + 面積偵測羽球
+    
+    原理：
+    1. 前後幀差分：找出移動的物體
+    2. 亮度篩選：羽球通常是白色或黃色，較亮
+    3. 面積過濾：排除太大或太小的候選區域
+    4. 距離追蹤：選擇離上一幀位置最近的候選
     """
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -154,9 +160,20 @@ def draw_skeleton(frame, kpts, color=(0, 255, 255)):
 
 def is_arm_raised(kpts):
     """
-    判斷右手臂是否抬起（右手腕是否高於右肩）
-    COCO 17 keypoints: 6=右肩, 8=右肘, 10=右手腕
-    Returns: True 如果右手臂抬起，False 否則
+    判斷右手臂是否抬起（用於偵測擊球動作的起始時刻）
+    
+    判斷邏輯：
+    1. 右手腕必須在右肩上方至少 40 pixels
+    2. 右肘不能低於右肩太多（允許 20 pixels 容錯）
+    
+    COCO 17 keypoints 索引：
+    - 6 = 右肩
+    - 8 = 右肘
+    - 10 = 右手腕
+    
+    Returns: 
+        True - 右手臂抬起（偵測到擊球準備動作）
+        False - 右手臂未抬起
     """
     if len(kpts) < 17:
         return False
@@ -178,7 +195,7 @@ def is_arm_raised(kpts):
     # 額外檢查：右肘也應該在右肩上方（更嚴格的抬手判定）
     elbow_check = True
     if r_elbow[0] > 0 and r_elbow[1] > 0:
-        elbow_check = r_elbow[1] < (r_shoulder[1] + 1)  # 右肘至少不低於右肩太多
+        elbow_check = r_elbow[1] < (r_shoulder[1] + 20)  # 右肘至少不低於右肩太多
     
     return wrist_above_shoulder and elbow_check
 
@@ -355,6 +372,7 @@ def main():
     # === 手臂動作追蹤變數 ===
     arm_was_raised = False      # 上一幀手臂是否抬起
     arm_raised_frame = None     # 手臂抬起的幀數（用於追蹤後續球的運動）
+    arm_cooldown_until = 0      # ⭐ 冷卻時間：在此幀數之前不接受新的 arm up（避免重複觸發）
     shot_detected = False       # 是否偵測到擊球動作
     shot_type = ""             # 擊球類型
     shot_display_timer = 0      # 顯示計時器（顯示 30 幀 = 約 1 秒）
@@ -485,19 +503,24 @@ def main():
             kpts = kpts_all_cpu[i]  # 使用預先轉換的版本
             current_arm_raised = is_arm_raised(kpts)
             
-            # 記錄手臂抬起的時刻（只有右手臂抬起才觸發）
-            if current_arm_raised and not arm_was_raised:
-                # 右手臂從放下變成抬起
+            # ⭐ 冷卻機制：檢查是否在冷卻期間內
+            # 記錄手臂抬起的時刻（只有右手臂抬起才觸發，且不在冷卻期）
+            if current_arm_raised and not arm_was_raised and frame_idx >= arm_cooldown_until:
+                # 右手臂從放下變成抬起，且已過冷卻期
                 arm_raised_frame = frame_idx
+                arm_cooldown_until = frame_idx + 10  # ⭐ 設定冷卻時間：接下來10幀內不接受新的 arm up
                 tracking_points = []  # 清空追蹤點
                 analysis_complete = False  # 重置分析狀態
                 shot_display_timer = 0  # 清空之前的顯示計時器
                 trajectory_info = {}  # 清空之前的軌跡資訊
                 print(f"\n📍 Frame {frame_idx}: 右手臂抬起，開始追蹤球的運動...")
+                print(f"   ⏱️  冷卻時間：Frame {frame_idx} ~ {arm_cooldown_until} (10幀) 內不接受新的手臂抬起")
+                print(f"   📊 追蹤計畫：等待 5 幀 + 追蹤 40 幀 = 總共 45 幀")
             
             # ⚠️ 注意：tracking_points 的收集移到偵測球之後（在後面的代碼中）
             
-            # 在右手臂抬起後約45幀（1.5秒@30fps）檢查球的運動方向
+            # ⭐ 在右手臂抬起後等待 45 幀（5幀等待 + 40幀追蹤）檢查球的運動方向
+            # 前5幀讓球飛出去，不計入判定；後40幀用於分析軌跡
             if arm_raised_frame is not None and not analysis_complete and (frame_idx - arm_raised_frame) >= 45:
                 # 分析從手臂抬起到現在的球運動方向
                 ball_at_raise = None
@@ -529,16 +552,63 @@ def main():
                     distance = np.hypot(dx, dy)
                     velocity = distance / dt if dt > 0 else 0
                     
-                    # 根據 y 軸方向判斷擊球類型
-                    if dy < -20:  # y 變小（往上 = 往高處）
-                        shot_type = "Clear (高遠球)"
-                    elif dy > 20:  # y 變大（往下 = 往低處）
-                        if velocity > 500:  # 速度快
-                            shot_type = "Smash (殺球)"
-                        else:  # 速度慢
-                            shot_type = "Drop (切球)"
-                    else:
-                        shot_type = "Drive (平抽)"
+                    # === 統計45幀追蹤期間有多少球在高處（y < 350)===
+                    # 目的：判斷是否為高遠球（Clear）
+                    # 高遠球特徵：球大部分時間停留在畫面高處
+                    high_ball_count = 0  # 計數：在高處（y < 350）的球數量
+                    total_tracked = len(tracking_points)
+                    
+                    for (px, py, f_idx) in tracking_points:
+                        if py < 350:  # y 座標越小表示越靠近畫面頂部（高處）
+                            high_ball_count += 1
+                    
+                    high_ball_ratio = high_ball_count / total_tracked if total_tracked > 0 else 0
+                    
+                    # === 檢查最後5幀是否在低處（y > 400）===
+                    # 目的：排除「先上升後快速下降」的球（不是真正的高遠球）
+                    # 真正的高遠球應該持續在高處，不會在追蹤末期出現在低處
+                    last_frames_low = False
+                    if len(tracking_points) >= 5:
+                        last_5_frames = tracking_points[-5:]  # 取最後5幀
+                        low_count = sum(1 for (px, py, f_idx) in last_5_frames if py > 400)
+                        if low_count >= 3:  # 最後5幀中有3幀或以上在低處（y > 400）
+                            last_frames_low = True  # 標記為「結束時在低處」
+                    
+                    # === 計算頭尾 y 軸位移（用於判斷 Drop 切球）===
+                    # 切球特徵：從高處明顯下降到低處（y 軸正向位移大）
+                    head_to_tail_dy = 0
+                    if len(tracking_points) >= 2:
+                        first_y = tracking_points[0][1]   # 起始位置的 y 座標
+                        last_y = tracking_points[-1][1]   # 結束位置的 y 座標
+                        head_to_tail_dy = last_y - first_y  # 正值 = 往下降，負值 = 往上升
+                    
+                    # === 擊球類型判斷邏輯（依優先順序）===
+                    
+                    # 1. 最優先：Clear（高遠球）
+                    # 條件：80% 以上的追蹤點在高處 且 結束時不在低處
+                    # 特徵：球持續在畫面高處飛行，弧線高
+                    if high_ball_ratio > 0.8 and not last_frames_low:
+                        shot_type = "Clear"
+                    
+                    # 2. 次優先：Smash（殺球）
+                    # 條件：速度超過 700 pixels/s
+                    # 特徵：球速快、力量大、向下攻擊
+                    elif velocity > 700:
+                        shot_type = "Smash"
+                    
+                    # 3. 第三優先：Drop（切球）
+                    # 條件：頭尾 y 軸位移超過 300 pixels（明顯下降）
+                    # 特徵：從高處落下，下降幅度大但速度較慢
+                    elif head_to_tail_dy > 300:
+                        shot_type = "Drop"
+                    
+                    # 4. 其他輔助判斷條件
+                    elif dy < -20:  # y 變小 = 往上飛 → 可能是高遠球
+                        shot_type = "Clear"
+                    elif dy > 20:  # y 變大 = 往下飛 且速度慢 → 可能是切球
+                        shot_type = "Drop"
+                    else:  # 其他情況 → 平抽球（水平快速移動）
+                        shot_type = "Drive"
                     
                     shot_detected = True
                     shot_display_timer = 75  # 顯示 75 幀（2.5秒），配合 45 幀追蹤時間
@@ -549,15 +619,17 @@ def main():
                         'dy': dy,
                         'velocity': velocity,
                         'ball_at_raise': ball_at_raise,
-                        'ball_now': ball_now
+                        'ball_now': ball_now,
+                        'high_ball_ratio': high_ball_ratio
                     }
                     
                     print(f"\n🎾 Frame {frame_idx}: 偵測到右手擊球！")
                     print(f"   類型: {shot_type}")
                     print(f"   Δy: {dy:.1f} pixels ({'往高處' if dy < 0 else '往低處'})")
                     print(f"   速度: {velocity:.1f} pixels/s")
-                    print(f"   右手臂抬起於 Frame {arm_raised_frame}，已追蹤 {frame_idx - arm_raised_frame} 幀")
-                    print(f"   追蹤到 {len(tracking_points)} 個球位置點")
+                    print(f"   高處球比例: {high_ball_ratio:.1%} ({high_ball_count}/{total_tracked} 在 y<300)")
+                    print(f"   右手臂抬起於 Frame {arm_raised_frame}，等待5幀後追蹤40幀")
+                    print(f"   實際追蹤到 {len(tracking_points)} 個球位置點")
                     
                     # 不重置 arm_raised_frame 和 tracking_points，保留用於顯示
                 else:
@@ -619,15 +691,26 @@ def main():
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7,
                        arm_status_color, 2)
         
-        # === 顯示追蹤中的球位置點（45幀判斷點）===
+        # === 顯示追蹤中的球位置點（40幀判斷點，前5幀等待）===
         # ⚠️ 只在追蹤進行中顯示，分析完成後就不顯示了
-        if arm_raised_frame is not None and len(tracking_points) > 0 and not analysis_complete:
-            # 顯示追蹤狀態文字
-            tracking_text = f"Tracking... ({len(tracking_points)}/45 frames)"
+        if arm_raised_frame is not None and not analysis_complete:
+            frames_since_raise = frame_idx - arm_raised_frame
+            
+            # 顯示追蹤狀態文字（區分等待期和追蹤期）
+            if frames_since_raise < 5:
+                tracking_text = f"Waiting... ({frames_since_raise + 1}/5 frames)"
+                text_color = (128, 128, 128)  # 灰色 = 等待中
+            else:
+                tracking_text = f"Tracking... ({len(tracking_points)}/40 frames)"
+                text_color = (0, 255, 255)  # 青色 = 追蹤中
+            
             cv2.putText(frame, tracking_text,
                        (10, h - 70),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7,
-                       (0, 255, 255), 2)
+                       text_color, 2)
+        
+        # 只在有追蹤點時才顯示軌跡
+        if arm_raised_frame is not None and len(tracking_points) > 0 and not analysis_complete:
             
             # 畫出所有追蹤點
             for i, (px, py, f_idx) in enumerate(tracking_points):
@@ -850,11 +933,16 @@ def main():
             ball_bbox = selected_ball_bbox
         
         # === 在追蹤期間收集球的位置點（移到這裡，確保球已經被偵測） ===
+        # ⭐ 只在手臂抬起後第 5-45 幀（共40幀）收集球位置，前5幀跳過
         if arm_raised_frame is not None and not analysis_complete:
-            # 檢查當前幀是否有球
-            if selected_ball_pos is not None:
+            frames_since_raise = frame_idx - arm_raised_frame
+            
+            # 只在第 5-45 幀收集球位置（跳過前5幀，收集40幀）
+            if frames_since_raise >= 5 and selected_ball_pos is not None:
                 tracking_points.append((selected_ball_pos[0], selected_ball_pos[1], frame_idx))
-                print(f"   Frame {frame_idx}: 追蹤球位置 ({int(selected_ball_pos[0])}, {int(selected_ball_pos[1])})")
+                print(f"   Frame {frame_idx} (追蹤第 {len(tracking_points)}/40 幀): 球位置 ({int(selected_ball_pos[0])}, {int(selected_ball_pos[1])})")
+            elif frames_since_raise < 5:
+                print(f"   Frame {frame_idx} (等待期 {frames_since_raise+1}/5): 跳過...")
 
         # === 即時顯示球的數據（左上角） ===
         if ball_info_text:
