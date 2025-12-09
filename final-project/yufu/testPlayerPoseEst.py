@@ -16,6 +16,9 @@ OUTPUT_PATH = "./output_with_pose.mp4"
 # 球場標註座標 (np.save 出來的 court_pts.npy)
 COURT_PTS_PATH = "./court_pts.npy"
 
+# ⭐ 羽球邊界線座標（可選，如果有的話會用手動標註的，沒有就自動計算）
+BALL_BOUNDARY_PATH = "./ball_boundary.npy"
+
 # ⭐ 改成 YOLO Pose 權重（人 + skeleton）
 YOLO_WEIGHTS = "./yolov8n-pose.pt"
 
@@ -151,21 +154,30 @@ def main():
     court_pts = np.load(COURT_PTS_PATH)
     court_contour = court_pts.reshape((-1, 1, 2)).astype(np.int32)
 
-    # ⭐ 用「y 最小的兩個點」的 x 當作球的左右邊界（遠端線）
-    ys = court_pts[:, 1]
-    idx_sorted = np.argsort(ys)        # y 由小到大
-    top_idx = idx_sorted[:2]           # 最上面兩點（y 最小）
-    top_pts = court_pts[top_idx]       # shape (2, 2)
-    print("Top points (far side) for ball:", top_pts)
+    # === 讀取或計算球的左右邊界 ===
+    try:
+        # 嘗試讀取手動標註的邊界線
+        boundary_data = np.load(BALL_BOUNDARY_PATH, allow_pickle=True).item()
+        x_min_ball = boundary_data['left_x']
+        x_max_ball = boundary_data['right_x']
+        print(f"✅ 使用手動標註的邊界線: left_x={x_min_ball}, right_x={x_max_ball}")
+    except:
+        # 沒有手動標註的話，自動計算（用球場最上面兩點）
+        print("⚠️  沒有找到手動標註的邊界線，使用自動計算...")
+        ys = court_pts[:, 1]
+        idx_sorted = np.argsort(ys)        # y 由小到大
+        top_idx = idx_sorted[:2]           # 最上面兩點（y 最小）
+        top_pts = court_pts[top_idx]       # shape (2, 2)
+        print("Top points (far side) for ball:", top_pts)
 
-    x_min = top_pts[:, 0].min()
-    x_max = top_pts[:, 0].max()
+        x_min = top_pts[:, 0].min()
+        x_max = top_pts[:, 0].max()
 
-    margin = 5  # 預留一點空間
-    x_min_ball = int(x_min + margin)
-    x_max_ball = int(x_max - margin)
+        margin = 5  # 預留一點空間
+        x_min_ball = int(x_min + margin)
+        x_max_ball = int(x_max - margin)
 
-    print("Court x range for ball (using top points):", x_min_ball, "to", x_max_ball)
+        print("Court x range for ball (using top points):", x_min_ball, "to", x_max_ball)
 
     # === 影片 IO ===
     cap = cv2.VideoCapture(VIDEO_PATH)
