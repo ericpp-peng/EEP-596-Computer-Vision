@@ -47,13 +47,33 @@
 
 ### 標註訓練版本
 ```bash
+# 使用預設影片
 python testPlayerPoseEst.py
+
+# 指定輸入影片
+python testPlayerPoseEst.py -i my_video.mp4
+
+# 指定輸入和輸出影片
+python testPlayerPoseEst.py -i input.mp4 -o output.mp4
+
+# 查看幫助
+python testPlayerPoseEst.py --help
 ```
 偵測到擊球時會暫停，按對應按鍵標註答案。
 
 ### 自動預測版本
 ```bash
+# 使用預設影片
 python testPlayerPoseEst_auto.py
+
+# 指定輸入影片
+python testPlayerPoseEst_auto.py -i my_video.mp4
+
+# 指定輸入和輸出影片
+python testPlayerPoseEst_auto.py -i input.mp4 -o output.mp4
+
+# 查看幫助
+python testPlayerPoseEst_auto.py --help
 ```
 完全自動運行，不需要任何操作。
 

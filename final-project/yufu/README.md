@@ -90,15 +90,32 @@ python testPlayerPoseEst.py
 
 **想快速看效果？** → 用自動版
 ```bash
+# 使用預設影片
 python testPlayerPoseEst_auto.py
-# 完全自動，不需要任何操作
+
+# 指定輸入影片
+python testPlayerPoseEst_auto.py -i my_video.mp4
+
+# 指定輸入和輸出
+python testPlayerPoseEst_auto.py -i input.mp4 -o output.mp4
 ```
 
 **想改進模型？** → 用標註版
 ```bash
+# 使用預設影片
 python testPlayerPoseEst.py
-# 按 C = Clear，S = Smash，D = Drop
-# 或 Space = 接受 AI 判斷
+
+# 指定輸入影片
+python testPlayerPoseEst.py -i my_video.mp4
+
+# 指定輸入和輸出
+python testPlayerPoseEst.py -i input.mp4 -o result.mp4
+```
+
+**查看使用說明**
+```bash
+python testPlayerPoseEst_auto.py --help
+python testPlayerPoseEst.py --help
 ```
 
 ---

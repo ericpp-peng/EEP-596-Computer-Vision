@@ -7,16 +7,18 @@ import time
 from collections import deque
 import json
 from datetime import datetime
+import sys
+import argparse
 from shot_trajectory_logger import TrajectoryLogger  # ⭐ 新增：軌跡記錄器
 
 # Fix for PyTorch 2.6+ weights_only loading issue
 torch.serialization.add_safe_globals(['ultralytics.nn.tasks.PoseModel'])
 
 # ===================== 參數區：請依你的環境修改 =====================
-# 影片路徑
+# 影片路徑（可被命令列參數覆蓋）
 VIDEO_PATH = "./20250711_short.mp4"
 
-# 輸出影片路徑
+# 輸出影片路徑（可被命令列參數覆蓋）
 OUTPUT_PATH = "./output_with_pose.mp4"
 
 # 球場標註座標 (np.save 出來的 court_pts.npy)
@@ -453,6 +455,30 @@ def classify_shot_by_trajectory(ball_history, shot_frame_idx, fps=30,
 
 
 def main():
+    # === 命令列參數解析 ===
+    parser = argparse.ArgumentParser(
+        description='羽球影片分析系統 - 標註訓練版',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='''
+範例:
+  python testPlayerPoseEst.py                              # 使用預設影片
+  python testPlayerPoseEst.py -i input.mp4                 # 指定輸入影片
+  python testPlayerPoseEst.py -i input.mp4 -o output.mp4   # 指定輸入和輸出
+        ''')
+    parser.add_argument('-i', '--input', type=str, default=VIDEO_PATH,
+                       help=f'輸入影片路徑 (預設: {VIDEO_PATH})')
+    parser.add_argument('-o', '--output', type=str, default=OUTPUT_PATH,
+                       help=f'輸出影片路徑 (預設: {OUTPUT_PATH})')
+    args = parser.parse_args()
+    
+    # 使用命令列參數或預設值
+    global VIDEO_PATH, OUTPUT_PATH
+    VIDEO_PATH = args.input
+    OUTPUT_PATH = args.output
+    
+    print(f"📹 輸入影片: {VIDEO_PATH}")
+    print(f"📤 輸出影片: {OUTPUT_PATH}")
+    
     # === 設定 GPU 加速 (MPS for M4 Pro) ===
     if torch.backends.mps.is_available():
         device = 'mps'
