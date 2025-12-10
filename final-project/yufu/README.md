@@ -25,8 +25,10 @@ yufu/
 ├── 📂 docs/                           # 📚 詳細文檔
 │   └── SHUTTLECOCK_TRAINING_GUIDE.md  # 羽球偵測訓練指南
 │
-├── 🎯 主程式
-│   └── testPlayerPoseEst.py          # 主分析程式
+├── 🎯 主程式（兩個版本）
+│   ├── testPlayerPoseEst.py          # 標註訓練版（需要用戶輸入答案）
+│   ├── testPlayerPoseEst_auto.py     # ⭐ 自動預測版（完全自動，不需輸入）
+│   └── VERSION_COMPARISON.md         # 兩版本差異說明
 │
 ├── 🤖 軌跡記錄系統
 │   └── shot_trajectory_logger.py     # 完整 x,y 軌跡記錄器
@@ -50,7 +52,58 @@ yufu/
 
 ## 🚀 快速開始
 
-### 1️⃣ 執行主分析程式
+### 🔄 選擇適合的版本
+
+本專案提供兩個版本，請根據需求選擇：
+
+#### 1️⃣ **自動預測版本**（推薦先試用）📹
+
+```bash
+python testPlayerPoseEst_auto.py
+```
+
+**特點：**
+- 🤖 完全自動，不需要任何輸入
+- 🚀 從頭到尾連續處理影片
+- 📊 自動判斷擊球類型（Clear/Smash/Drop）
+- 🎬 輸出檔案：`output_with_pose_auto.mp4`
+- ⚡ 適合：快速預覽、展示、批量處理
+
+#### 2️⃣ **標註訓練版本**（用於改進模型）🎓
+
+```bash
+python testPlayerPoseEst.py
+```
+
+**特點：**
+- ✋ 偵測到擊球會暫停
+- ⌨️ 按鍵標註正確答案（C/S/D/Space）
+- 📝 記錄用戶標註 vs AI 預測
+- 🎬 輸出檔案：`output_with_pose.mp4`
+- 🎯 適合：訓練模型、驗證準確度、收集數據
+
+> 💡 **提示：** 詳細差異請參考 [VERSION_COMPARISON.md](./VERSION_COMPARISON.md)
+
+---
+
+### 🎮 執行範例
+
+**想快速看效果？** → 用自動版
+```bash
+python testPlayerPoseEst_auto.py
+# 完全自動，不需要任何操作
+```
+
+**想改進模型？** → 用標註版
+```bash
+python testPlayerPoseEst.py
+# 按 C = Clear，S = Smash，D = Drop
+# 或 Space = 接受 AI 判斷
+```
+
+---
+
+### 1️⃣ （舊版說明）執行主分析程式
 
 ```bash
 python testPlayerPoseEst.py
@@ -79,6 +132,7 @@ python -c "import json; data = json.load(open('shot_trajectories.json')); print(
 ```
 ✅ 系統功能完整
 ✅ 新版軌跡記錄系統已上線
+✅ 提供兩種使用模式：自動預測版 + 標註訓練版
 📊 資料格式：完整 45 幀 x,y 座標 + 缺幀標記
 🎯 平均偵測率：78.5%
 🚀 下一步：收集 50+ 樣本訓練 LSTM/Transformer 模型
@@ -121,8 +175,12 @@ python -c "import json; data = json.load(open('shot_trajectories.json')); print(
 **推薦流程：**
 
 1. **閱讀本 README** - 了解專案概況（就是現在這個檔案）
-2. **執行主程式**：`python testPlayerPoseEst.py`
-3. **開始標註**：按 1/2/3 標註球種（資料會儲存到 `shot_trajectories.json`）
+2. **試用自動版本**：`python testPlayerPoseEst_auto.py`
+   - 先看看系統的預測效果
+   - 完全自動，不需要任何操作
+3. **使用標註版本**：`python testPlayerPoseEst.py`
+   - 開始標註資料訓練模型
+   - 按 C/S/D 標註球種（資料會儲存到 `shot_trajectories.json`）
 
 ### 🔧 想要改進或訓練模型？
 
@@ -163,6 +221,23 @@ pip install ultralytics opencv-python numpy torch scikit-learn matplotlib seabor
 - ✅ **YOLO 物件偵測**（人體姿態 + 羽球偵測）
 - ✅ **卡爾曼濾波**（軌跡平滑）
 - ✅ **模組化設計**（易於擴展與整合）
+- ✅ **雙模式系統**（自動預測 + 標註訓練）
+
+---
+
+## 🎯 兩種使用模式
+
+| 功能 | 自動預測版 | 標註訓練版 |
+|------|-----------|-----------|
+| 檔名 | `testPlayerPoseEst_auto.py` | `testPlayerPoseEst.py` |
+| 用途 | 快速預測、展示 | 訓練模型、收集數據 |
+| 需要輸入 | ❌ 否 | ✅ 是（C/S/D） |
+| 會暫停 | ❌ 否 | ✅ 是（等待標註） |
+| 輸出檔案 | `output_with_pose_auto.mp4` | `output_with_pose.mp4` |
+| 記錄準確度 | ❌ 否（自動接受） | ✅ 是（對比用戶標註） |
+| 適用場景 | 批量處理、Demo | 改進模型、驗證 |
+
+詳細差異請參考 [VERSION_COMPARISON.md](./VERSION_COMPARISON.md)
 
 ---
 
