@@ -473,6 +473,8 @@ def classify_shot_by_trajectory(ball_history, shot_frame_idx, fps=30,
 
 
 def main():
+    global VIDEO_PATH, OUTPUT_PATH
+    
     # === 命令列參數解析 ===
     parser = argparse.ArgumentParser(
         description='羽球影片分析系統 - 自動預測版 (完全自動，不需輸入)',
@@ -490,7 +492,6 @@ def main():
     args = parser.parse_args()
     
     # 使用命令列參數或預設值
-    global VIDEO_PATH, OUTPUT_PATH
     VIDEO_PATH = args.input
     OUTPUT_PATH = args.output
     
