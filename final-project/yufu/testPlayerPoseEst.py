@@ -7,6 +7,7 @@ import time
 from collections import deque
 import json
 from datetime import datetime
+from shot_trajectory_logger import TrajectoryLogger  # ⭐ 新增：軌跡記錄器
 
 # Fix for PyTorch 2.6+ weights_only loading issue
 torch.serialization.add_safe_globals(['ultralytics.nn.tasks.PoseModel'])
@@ -543,6 +544,9 @@ def main():
     # === 球軌跡記錄（用於判斷擊球類型）===
     ball_history = deque(maxlen=90)  # 保留最近 90 幀的球位置（3秒@30fps，確保 45 幀判斷有足夠歷史）
     
+    # ⭐ 新的軌跡記錄器（記錄完整 x, y 座標）
+    trajectory_logger = TrajectoryLogger("./shot_trajectories.json")
+    
     # ⭐ 卡爾曼濾波器（用於球位置預測）
     ball_velocity = None  # 球的速度向量 (vx, vy)
     predicted_ball_pos = None  # 預測的球位置
@@ -1001,6 +1005,17 @@ def main():
                     # 儲存記錄
                     if user_label:
                         save_shot_record(frame_idx, params_dict, shot_type, user_label)
+                        # ⭐ 新增：儲存完整軌跡
+                        trajectory_logger.save_shot(
+                            end_frame=frame_idx,
+                            user_label=user_label,
+                            court_area=None,  # 如果有球場區域判斷，可以加入
+                            metadata={
+                                'predicted_type': shot_type,
+                                'correct': user_label == shot_type,
+                                'old_params': params_dict  # 保留舊格式特徵供參考
+                            }
+                        )
                         if user_label == shot_type:
                             print(f"✓ 判斷正確！")
                         else:
@@ -1041,6 +1056,8 @@ def main():
                     # 清空追蹤狀態
                     arm_raised_frame = None
                     tracking_points = []
+                    # ⭐ 新增：重置軌跡記錄器（追蹤失敗）
+                    trajectory_logger.reset()
             
             arm_was_raised = current_arm_raised
         
@@ -1318,6 +1335,8 @@ def main():
                 point_in_box(cx, cy, pb) for pb in person_boxes
             ):
                 ball_history.append((frame_idx, cx, cy))
+                # ⭐ 新增：記錄到軌跡 logger
+                trajectory_logger.add_point(frame_idx, cx, cy, detected=True)
                 
                 # === 計算球的即時速度和方向 ===
                 if len(ball_history) >= 2:
@@ -1346,8 +1365,14 @@ def main():
                             ]
             else:
                 ball_history.append(None)  # 球不符合條件
+                # ⭐ 新增：記錄缺幀（球不符合條件）
+                if trajectory_logger.get_trajectory_length() > 0:
+                    trajectory_logger.add_point(frame_idx, None, None, detected=False)
         else:
             ball_history.append(None)  # 沒偵測到球
+            # ⭐ 新增：記錄缺幀（沒偵測到球）
+            if trajectory_logger.get_trajectory_length() > 0:
+                trajectory_logger.add_point(frame_idx, None, None, detected=False)
 
         # === 選球策略：優先選右手附近的 candidate ===
         # 先畫「符合條件的 candidates」（藍色）：

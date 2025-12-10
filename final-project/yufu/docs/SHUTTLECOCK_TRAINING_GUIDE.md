@@ -126,7 +126,7 @@ SMASH_ACCELERATION_THRESHOLD = 3   # 需要更明顯的加速
 ### 核心檔案
 - `testPlayerPoseEst.py` - 主程式
 - `config.py` - 配置檔
-- `shot_annotations.json` - 標註記錄（14 筆）
+- `shot_trajectories.json` - 軌跡標註記錄
 
 ### 資料檔案
 - `court_pts.npy` - 球場邊界座標
@@ -179,7 +179,7 @@ ARM_COOLDOWN_FRAMES = 15  # 延長冷卻時間
 
 ### 問題 3: 擊球分類錯誤
 **解決方案**:
-1. 檢查 `shot_annotations.json` 找出錯誤模式
+1. 檢查 `shot_trajectories.json` 找出錯誤模式
 2. 調整 `config.py` 中對應的門檻值
 3. 累積更多標註數據
 

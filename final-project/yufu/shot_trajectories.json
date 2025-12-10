@@ -1,0 +1,4935 @@
+[
+  {
+    "timestamp": "2025-12-09T15:48:09.927234",
+    "start_frame": 1,
+    "end_frame": 153,
+    "trajectory": [
+      {
+        "frame": 1,
+        "x": 606.0,
+        "y": 645.0,
+        "detected": true
+      },
+      {
+        "frame": 2,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 3,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 4,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 5,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 6,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 7,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 8,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 9,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 10,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 11,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 12,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 13,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 14,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 15,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 16,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 17,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 18,
+        "x": 615.0,
+        "y": 647.5,
+        "detected": true
+      },
+      {
+        "frame": 19,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 20,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 21,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 22,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 23,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 24,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 25,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 26,
+        "x": 922.0,
+        "y": 646.0,
+        "detected": true
+      },
+      {
+        "frame": 27,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 28,
+        "x": 941.25,
+        "y": 580.5,
+        "detected": true
+      },
+      {
+        "frame": 29,
+        "x": 947.25,
+        "y": 561.75,
+        "detected": true
+      },
+      {
+        "frame": 30,
+        "x": 952.5,
+        "y": 549.0,
+        "detected": true
+      },
+      {
+        "frame": 31,
+        "x": 955.5,
+        "y": 532.5,
+        "detected": true
+      },
+      {
+        "frame": 32,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 33,
+        "x": 972.0,
+        "y": 503.25,
+        "detected": true
+      },
+      {
+        "frame": 34,
+        "x": 975.75,
+        "y": 487.5,
+        "detected": true
+      },
+      {
+        "frame": 35,
+        "x": 978.75,
+        "y": 480.0,
+        "detected": true
+      },
+      {
+        "frame": 36,
+        "x": 982.5,
+        "y": 471.75,
+        "detected": true
+      },
+      {
+        "frame": 37,
+        "x": 990.75,
+        "y": 451.5,
+        "detected": true
+      },
+      {
+        "frame": 38,
+        "x": 996.0,
+        "y": 441.0,
+        "detected": true
+      },
+      {
+        "frame": 39,
+        "x": 1001.25,
+        "y": 430.875,
+        "detected": true
+      },
+      {
+        "frame": 40,
+        "x": 1005.75,
+        "y": 421.125,
+        "detected": true
+      },
+      {
+        "frame": 41,
+        "x": 1014.0,
+        "y": 411.0,
+        "detected": true
+      },
+      {
+        "frame": 42,
+        "x": 1018.5,
+        "y": 399.375,
+        "detected": true
+      },
+      {
+        "frame": 43,
+        "x": 1023.0,
+        "y": 391.5,
+        "detected": true
+      },
+      {
+        "frame": 44,
+        "x": 1027.5,
+        "y": 378.75,
+        "detected": true
+      },
+      {
+        "frame": 45,
+        "x": 1030.5,
+        "y": 368.25,
+        "detected": true
+      },
+      {
+        "frame": 46,
+        "x": 1035.0,
+        "y": 358.125,
+        "detected": true
+      },
+      {
+        "frame": 47,
+        "x": 1041.0,
+        "y": 350.34375,
+        "detected": true
+      },
+      {
+        "frame": 48,
+        "x": 1047.0,
+        "y": 341.625,
+        "detected": true
+      },
+      {
+        "frame": 49,
+        "x": 1050.0,
+        "y": 333.75,
+        "detected": true
+      },
+      {
+        "frame": 50,
+        "x": 1054.5,
+        "y": 325.875,
+        "detected": true
+      },
+      {
+        "frame": 51,
+        "x": 1062.0,
+        "y": 317.25,
+        "detected": true
+      },
+      {
+        "frame": 52,
+        "x": 1066.5,
+        "y": 308.625,
+        "detected": true
+      },
+      {
+        "frame": 53,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 54,
+        "x": 973.5,
+        "y": 618.0,
+        "detected": true
+      },
+      {
+        "frame": 55,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 56,
+        "x": 1078.655737704918,
+        "y": 289.0655737704918,
+        "detected": true
+      },
+      {
+        "frame": 57,
+        "x": 1086.6324786324785,
+        "y": 278.4871794871795,
+        "detected": true
+      },
+      {
+        "frame": 58,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 59,
+        "x": 1093.6964285714287,
+        "y": 269.89285714285717,
+        "detected": true
+      },
+      {
+        "frame": 60,
+        "x": 1107.121212121212,
+        "y": 256.8787878787879,
+        "detected": true
+      },
+      {
+        "frame": 61,
+        "x": 1111.409090909091,
+        "y": 250.5909090909091,
+        "detected": true
+      },
+      {
+        "frame": 62,
+        "x": 1116.2033898305085,
+        "y": 246.03389830508473,
+        "detected": true
+      },
+      {
+        "frame": 63,
+        "x": 1121.9830508474577,
+        "y": 241.54237288135593,
+        "detected": true
+      },
+      {
+        "frame": 64,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 65,
+        "x": 1123.9538461538461,
+        "y": 239.44615384615383,
+        "detected": true
+      },
+      {
+        "frame": 66,
+        "x": 1137.4146341463415,
+        "y": 227.17073170731706,
+        "detected": true
+      },
+      {
+        "frame": 67,
+        "x": 1142.6521739130435,
+        "y": 224.34782608695653,
+        "detected": true
+      },
+      {
+        "frame": 68,
+        "x": 1148.0862068965516,
+        "y": 221.1551724137931,
+        "detected": true
+      },
+      {
+        "frame": 69,
+        "x": 1153.688524590164,
+        "y": 218.1639344262295,
+        "detected": true
+      },
+      {
+        "frame": 70,
+        "x": 1159.1935483870968,
+        "y": 215.66129032258064,
+        "detected": true
+      },
+      {
+        "frame": 71,
+        "x": 1164.8030303030303,
+        "y": 213.53030303030303,
+        "detected": true
+      },
+      {
+        "frame": 72,
+        "x": 1170.15625,
+        "y": 211.578125,
+        "detected": true
+      },
+      {
+        "frame": 73,
+        "x": 1175.9848484848485,
+        "y": 209.84848484848484,
+        "detected": true
+      },
+      {
+        "frame": 74,
+        "x": 1181.6349206349207,
+        "y": 208.3968253968254,
+        "detected": true
+      },
+      {
+        "frame": 75,
+        "x": 1187.5344827586207,
+        "y": 207.29310344827587,
+        "detected": true
+      },
+      {
+        "frame": 76,
+        "x": 1193.703125,
+        "y": 206.59375,
+        "detected": true
+      },
+      {
+        "frame": 77,
+        "x": 1199.2666666666667,
+        "y": 206.93333333333334,
+        "detected": true
+      },
+      {
+        "frame": 78,
+        "x": 1205.0246913580247,
+        "y": 206.7530864197531,
+        "detected": true
+      },
+      {
+        "frame": 79,
+        "x": 1200.554054054054,
+        "y": 206.2972972972973,
+        "detected": true
+      },
+      {
+        "frame": 80,
+        "x": 1206.1875,
+        "y": 206.640625,
+        "detected": true
+      },
+      {
+        "frame": 81,
+        "x": 1212.8875,
+        "y": 207.0,
+        "detected": true
+      },
+      {
+        "frame": 82,
+        "x": 1219.08,
+        "y": 208.09333333333333,
+        "detected": true
+      },
+      {
+        "frame": 83,
+        "x": 1225.3827160493827,
+        "y": 210.02469135802468,
+        "detected": true
+      },
+      {
+        "frame": 84,
+        "x": 1232.0487804878048,
+        "y": 211.8780487804878,
+        "detected": true
+      },
+      {
+        "frame": 85,
+        "x": 1224.5,
+        "y": 213.5,
+        "detected": true
+      },
+      {
+        "frame": 86,
+        "x": 1225.0,
+        "y": 205.0,
+        "detected": true
+      },
+      {
+        "frame": 87,
+        "x": 1217.5,
+        "y": 351.5,
+        "detected": true
+      },
+      {
+        "frame": 88,
+        "x": 1219.5,
+        "y": 350.625,
+        "detected": true
+      },
+      {
+        "frame": 89,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 90,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 91,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 92,
+        "x": 1290.7173913043478,
+        "y": 255.7391304347826,
+        "detected": true
+      },
+      {
+        "frame": 93,
+        "x": 1291.0897435897436,
+        "y": 253.37179487179486,
+        "detected": true
+      },
+      {
+        "frame": 94,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 95,
+        "x": 1312.8095238095239,
+        "y": 279.4761904761905,
+        "detected": true
+      },
+      {
+        "frame": 96,
+        "x": 1317.0,
+        "y": 274.525,
+        "detected": true
+      },
+      {
+        "frame": 97,
+        "x": 1307.1363636363637,
+        "y": 267.40909090909093,
+        "detected": true
+      },
+      {
+        "frame": 98,
+        "x": 1287.0,
+        "y": 266.5,
+        "detected": true
+      },
+      {
+        "frame": 99,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 100,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 101,
+        "x": 1278.4117647058824,
+        "y": 335.94117647058823,
+        "detected": true
+      },
+      {
+        "frame": 102,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 103,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 104,
+        "x": 1170.0,
+        "y": 339.0,
+        "detected": true
+      },
+      {
+        "frame": 105,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 106,
+        "x": 1152.942528735632,
+        "y": 338.367816091954,
+        "detected": true
+      },
+      {
+        "frame": 107,
+        "x": 1128.9705882352941,
+        "y": 340.79411764705884,
+        "detected": true
+      },
+      {
+        "frame": 108,
+        "x": 1129.96875,
+        "y": 340.609375,
+        "detected": true
+      },
+      {
+        "frame": 109,
+        "x": 1112.0363636363636,
+        "y": 344.3636363636364,
+        "detected": true
+      },
+      {
+        "frame": 110,
+        "x": 1113.2830188679245,
+        "y": 344.35849056603774,
+        "detected": true
+      },
+      {
+        "frame": 111,
+        "x": 1098.2857142857142,
+        "y": 348.2857142857143,
+        "detected": true
+      },
+      {
+        "frame": 112,
+        "x": 1095.1521739130435,
+        "y": 345.9782608695652,
+        "detected": true
+      },
+      {
+        "frame": 113,
+        "x": 1093.4888888888888,
+        "y": 342.53333333333336,
+        "detected": true
+      },
+      {
+        "frame": 114,
+        "x": 1091.25,
+        "y": 339.65909090909093,
+        "detected": true
+      },
+      {
+        "frame": 115,
+        "x": 1089.25,
+        "y": 336.65909090909093,
+        "detected": true
+      },
+      {
+        "frame": 116,
+        "x": 1087.25,
+        "y": 333.65909090909093,
+        "detected": true
+      },
+      {
+        "frame": 117,
+        "x": 1071.75,
+        "y": 358.40625,
+        "detected": true
+      },
+      {
+        "frame": 118,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 119,
+        "x": 1069.5,
+        "y": 357.75,
+        "detected": true
+      },
+      {
+        "frame": 120,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 121,
+        "x": 1061.6,
+        "y": 366.175,
+        "detected": true
+      },
+      {
+        "frame": 122,
+        "x": 1061.0744680851064,
+        "y": 365.9148936170213,
+        "detected": true
+      },
+      {
+        "frame": 123,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 124,
+        "x": 1053.4827586206898,
+        "y": 373.8965517241379,
+        "detected": true
+      },
+      {
+        "frame": 125,
+        "x": 1051.8620689655172,
+        "y": 371.0689655172414,
+        "detected": true
+      },
+      {
+        "frame": 126,
+        "x": 1048.483870967742,
+        "y": 368.48387096774195,
+        "detected": true
+      },
+      {
+        "frame": 127,
+        "x": 1051.5,
+        "y": 367.5,
+        "detected": true
+      },
+      {
+        "frame": 128,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 129,
+        "x": 1046.5,
+        "y": 384.0,
+        "detected": true
+      },
+      {
+        "frame": 130,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 131,
+        "x": 1041.5,
+        "y": 393.5,
+        "detected": true
+      },
+      {
+        "frame": 132,
+        "x": 1039.0,
+        "y": 397.0,
+        "detected": true
+      },
+      {
+        "frame": 133,
+        "x": 1034.421052631579,
+        "y": 389.10526315789474,
+        "detected": true
+      },
+      {
+        "frame": 134,
+        "x": 1031.0833333333333,
+        "y": 390.25,
+        "detected": true
+      },
+      {
+        "frame": 135,
+        "x": 1027.2857142857142,
+        "y": 389.7142857142857,
+        "detected": true
+      },
+      {
+        "frame": 136,
+        "x": 1023.88,
+        "y": 389.52,
+        "detected": true
+      },
+      {
+        "frame": 137,
+        "x": 1023.0,
+        "y": 391.875,
+        "detected": true
+      },
+      {
+        "frame": 138,
+        "x": 1023.0,
+        "y": 392.25,
+        "detected": true
+      },
+      {
+        "frame": 139,
+        "x": 1023.0,
+        "y": 392.25,
+        "detected": true
+      },
+      {
+        "frame": 140,
+        "x": 1023.0,
+        "y": 392.25,
+        "detected": true
+      },
+      {
+        "frame": 141,
+        "x": 1023.0,
+        "y": 390.75,
+        "detected": true
+      },
+      {
+        "frame": 142,
+        "x": 1024.5,
+        "y": 389.25,
+        "detected": true
+      },
+      {
+        "frame": 143,
+        "x": 1023.75,
+        "y": 390.75,
+        "detected": true
+      },
+      {
+        "frame": 144,
+        "x": 1023.75,
+        "y": 390.0,
+        "detected": true
+      },
+      {
+        "frame": 145,
+        "x": 1023.75,
+        "y": 390.375,
+        "detected": true
+      },
+      {
+        "frame": 146,
+        "x": 1024.5,
+        "y": 390.0,
+        "detected": true
+      },
+      {
+        "frame": 147,
+        "x": 1024.5,
+        "y": 391.125,
+        "detected": true
+      },
+      {
+        "frame": 148,
+        "x": 1024.5,
+        "y": 390.75,
+        "detected": true
+      },
+      {
+        "frame": 149,
+        "x": 1024.5,
+        "y": 391.125,
+        "detected": true
+      },
+      {
+        "frame": 150,
+        "x": 1024.5,
+        "y": 390.75,
+        "detected": true
+      },
+      {
+        "frame": 151,
+        "x": 1025.25,
+        "y": 390.75,
+        "detected": true
+      },
+      {
+        "frame": 152,
+        "x": 1026.0,
+        "y": 390.75,
+        "detected": true
+      },
+      {
+        "frame": 153,
+        "x": null,
+        "y": null,
+        "detected": false
+      }
+    ],
+    "user_label": "Clear",
+    "court_area": null,
+    "stats": {
+      "total_frames": 153,
+      "detected_frames": 109,
+      "detection_rate": 0.7124183006535948
+    },
+    "metadata": {
+      "predicted_type": "Clear",
+      "correct": true,
+      "old_params": {
+        "overall_slope": 51.75,
+        "highest_position_ratio": 0.2558139534883721,
+        "velocity": 335.6058437230133,
+        "acceleration": -6.440486559368139,
+        "y_range": 59.840909090909065,
+        "high_ball_ratio": 0.27906976744186046,
+        "last_frames_low": false,
+        "has_turning_point": false,
+        "turning_point_info": ""
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-09T15:48:19.322579",
+    "start_frame": 153,
+    "end_frame": 282,
+    "trajectory": [
+      {
+        "frame": 153,
+        "x": 1027.5,
+        "y": 471.0,
+        "detected": true
+      },
+      {
+        "frame": 154,
+        "x": 1027.5,
+        "y": 472.5,
+        "detected": true
+      },
+      {
+        "frame": 155,
+        "x": 1026.0,
+        "y": 479.25,
+        "detected": true
+      },
+      {
+        "frame": 156,
+        "x": 1025.25,
+        "y": 482.25,
+        "detected": true
+      },
+      {
+        "frame": 157,
+        "x": 1025.25,
+        "y": 485.25,
+        "detected": true
+      },
+      {
+        "frame": 158,
+        "x": 1026.0,
+        "y": 489.75,
+        "detected": true
+      },
+      {
+        "frame": 159,
+        "x": 1027.5,
+        "y": 495.75,
+        "detected": true
+      },
+      {
+        "frame": 160,
+        "x": 1024.5,
+        "y": 501.0,
+        "detected": true
+      },
+      {
+        "frame": 161,
+        "x": 1025.25,
+        "y": 505.5,
+        "detected": true
+      },
+      {
+        "frame": 162,
+        "x": 1025.25,
+        "y": 508.5,
+        "detected": true
+      },
+      {
+        "frame": 163,
+        "x": 1025.25,
+        "y": 511.5,
+        "detected": true
+      },
+      {
+        "frame": 164,
+        "x": 907.5,
+        "y": 584.625,
+        "detected": true
+      },
+      {
+        "frame": 165,
+        "x": 906.0,
+        "y": 569.25,
+        "detected": true
+      },
+      {
+        "frame": 166,
+        "x": 904.5,
+        "y": 554.625,
+        "detected": true
+      },
+      {
+        "frame": 167,
+        "x": 901.5,
+        "y": 537.0,
+        "detected": true
+      },
+      {
+        "frame": 168,
+        "x": 899.25,
+        "y": 520.125,
+        "detected": true
+      },
+      {
+        "frame": 169,
+        "x": 899.25,
+        "y": 508.875,
+        "detected": true
+      },
+      {
+        "frame": 170,
+        "x": 894.75,
+        "y": 495.75,
+        "detected": true
+      },
+      {
+        "frame": 171,
+        "x": 894.0,
+        "y": 482.25,
+        "detected": true
+      },
+      {
+        "frame": 172,
+        "x": 892.5,
+        "y": 468.75,
+        "detected": true
+      },
+      {
+        "frame": 173,
+        "x": 891.0,
+        "y": 453.375,
+        "detected": true
+      },
+      {
+        "frame": 174,
+        "x": 886.5,
+        "y": 441.75,
+        "detected": true
+      },
+      {
+        "frame": 175,
+        "x": 885.75,
+        "y": 429.0,
+        "detected": true
+      },
+      {
+        "frame": 176,
+        "x": 885.0,
+        "y": 421.5,
+        "detected": true
+      },
+      {
+        "frame": 177,
+        "x": 882.0,
+        "y": 410.625,
+        "detected": true
+      },
+      {
+        "frame": 178,
+        "x": 883.5,
+        "y": 398.625,
+        "detected": true
+      },
+      {
+        "frame": 179,
+        "x": 879.75,
+        "y": 387.75,
+        "detected": true
+      },
+      {
+        "frame": 180,
+        "x": 880.5,
+        "y": 375.0,
+        "detected": true
+      },
+      {
+        "frame": 181,
+        "x": 877.5,
+        "y": 364.5,
+        "detected": true
+      },
+      {
+        "frame": 182,
+        "x": 875.25,
+        "y": 352.40625,
+        "detected": true
+      },
+      {
+        "frame": 183,
+        "x": 874.5,
+        "y": 348.75,
+        "detected": true
+      },
+      {
+        "frame": 184,
+        "x": 873.0,
+        "y": 336.375,
+        "detected": true
+      },
+      {
+        "frame": 185,
+        "x": 871.5,
+        "y": 327.0,
+        "detected": true
+      },
+      {
+        "frame": 186,
+        "x": 868.5,
+        "y": 319.5,
+        "detected": true
+      },
+      {
+        "frame": 187,
+        "x": 867.0,
+        "y": 308.625,
+        "detected": true
+      },
+      {
+        "frame": 188,
+        "x": 865.5,
+        "y": 302.625,
+        "detected": true
+      },
+      {
+        "frame": 189,
+        "x": 861.0,
+        "y": 294.1875,
+        "detected": true
+      },
+      {
+        "frame": 190,
+        "x": 859.5,
+        "y": 285.9375,
+        "detected": true
+      },
+      {
+        "frame": 191,
+        "x": 859.5,
+        "y": 280.5,
+        "detected": true
+      },
+      {
+        "frame": 192,
+        "x": 856.5,
+        "y": 271.875,
+        "detected": true
+      },
+      {
+        "frame": 193,
+        "x": 853.5,
+        "y": 265.5,
+        "detected": true
+      },
+      {
+        "frame": 194,
+        "x": 853.5,
+        "y": 260.625,
+        "detected": true
+      },
+      {
+        "frame": 195,
+        "x": 849.75,
+        "y": 254.25,
+        "detected": true
+      },
+      {
+        "frame": 196,
+        "x": 846.75,
+        "y": 247.125,
+        "detected": true
+      },
+      {
+        "frame": 197,
+        "x": 844.5,
+        "y": 240.375,
+        "detected": true
+      },
+      {
+        "frame": 198,
+        "x": 843.0,
+        "y": 233.625,
+        "detected": true
+      },
+      {
+        "frame": 199,
+        "x": 841.5,
+        "y": 227.4375,
+        "detected": true
+      },
+      {
+        "frame": 200,
+        "x": 837.75,
+        "y": 222.375,
+        "detected": true
+      },
+      {
+        "frame": 201,
+        "x": 836.25,
+        "y": 217.5,
+        "detected": true
+      },
+      {
+        "frame": 202,
+        "x": 834.75,
+        "y": 212.8125,
+        "detected": true
+      },
+      {
+        "frame": 203,
+        "x": 833.25,
+        "y": 208.875,
+        "detected": true
+      },
+      {
+        "frame": 204,
+        "x": 831.0,
+        "y": 205.5,
+        "detected": true
+      },
+      {
+        "frame": 205,
+        "x": 829.5,
+        "y": 204.1875,
+        "detected": true
+      },
+      {
+        "frame": 206,
+        "x": 825.75,
+        "y": 198.375,
+        "detected": true
+      },
+      {
+        "frame": 207,
+        "x": 822.0,
+        "y": 194.625,
+        "detected": true
+      },
+      {
+        "frame": 208,
+        "x": 819.75,
+        "y": 192.75,
+        "detected": true
+      },
+      {
+        "frame": 209,
+        "x": 816.75,
+        "y": 189.75,
+        "detected": true
+      },
+      {
+        "frame": 210,
+        "x": 814.5,
+        "y": 187.3125,
+        "detected": true
+      },
+      {
+        "frame": 211,
+        "x": 813.0,
+        "y": 185.0625,
+        "detected": true
+      },
+      {
+        "frame": 212,
+        "x": 809.25,
+        "y": 184.5,
+        "detected": true
+      },
+      {
+        "frame": 213,
+        "x": 807.0,
+        "y": 183.1875,
+        "detected": true
+      },
+      {
+        "frame": 214,
+        "x": 803.25,
+        "y": 181.875,
+        "detected": true
+      },
+      {
+        "frame": 215,
+        "x": 799.5,
+        "y": 182.0625,
+        "detected": true
+      },
+      {
+        "frame": 216,
+        "x": 795.0,
+        "y": 182.25,
+        "detected": true
+      },
+      {
+        "frame": 217,
+        "x": 792.0,
+        "y": 182.25,
+        "detected": true
+      },
+      {
+        "frame": 218,
+        "x": 787.5,
+        "y": 183.5625,
+        "detected": true
+      },
+      {
+        "frame": 219,
+        "x": 782.25,
+        "y": 184.6875,
+        "detected": true
+      },
+      {
+        "frame": 220,
+        "x": 778.5,
+        "y": 184.875,
+        "detected": true
+      },
+      {
+        "frame": 221,
+        "x": 774.75,
+        "y": 185.8125,
+        "detected": true
+      },
+      {
+        "frame": 222,
+        "x": 771.0,
+        "y": 187.3125,
+        "detected": true
+      },
+      {
+        "frame": 223,
+        "x": 768.0,
+        "y": 192.375,
+        "detected": true
+      },
+      {
+        "frame": 224,
+        "x": 765.0,
+        "y": 194.0625,
+        "detected": true
+      },
+      {
+        "frame": 225,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 226,
+        "x": 761.8507462686567,
+        "y": 197.6417910447761,
+        "detected": true
+      },
+      {
+        "frame": 227,
+        "x": 757.8591549295775,
+        "y": 201.81690140845072,
+        "detected": true
+      },
+      {
+        "frame": 228,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 229,
+        "x": 749.3369565217391,
+        "y": 210.81521739130434,
+        "detected": true
+      },
+      {
+        "frame": 230,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 231,
+        "x": 740.5851063829788,
+        "y": 222.06382978723406,
+        "detected": true
+      },
+      {
+        "frame": 232,
+        "x": 730.2826086956521,
+        "y": 240.44565217391303,
+        "detected": true
+      },
+      {
+        "frame": 233,
+        "x": 723.8958333333334,
+        "y": 249.60416666666666,
+        "detected": true
+      },
+      {
+        "frame": 234,
+        "x": 784.5,
+        "y": 222.1875,
+        "detected": true
+      },
+      {
+        "frame": 235,
+        "x": 786.0,
+        "y": 220.5,
+        "detected": true
+      },
+      {
+        "frame": 236,
+        "x": 787.5,
+        "y": 219.9375,
+        "detected": true
+      },
+      {
+        "frame": 237,
+        "x": 786.0,
+        "y": 214.875,
+        "detected": true
+      },
+      {
+        "frame": 238,
+        "x": 793.5,
+        "y": 201.375,
+        "detected": true
+      },
+      {
+        "frame": 239,
+        "x": 789.0,
+        "y": 201.0,
+        "detected": true
+      },
+      {
+        "frame": 240,
+        "x": 788.25,
+        "y": 200.625,
+        "detected": true
+      },
+      {
+        "frame": 241,
+        "x": 787.5,
+        "y": 199.5,
+        "detected": true
+      },
+      {
+        "frame": 242,
+        "x": 787.5,
+        "y": 200.625,
+        "detected": true
+      },
+      {
+        "frame": 243,
+        "x": 789.0,
+        "y": 199.3125,
+        "detected": true
+      },
+      {
+        "frame": 244,
+        "x": 787.5,
+        "y": 199.6875,
+        "detected": true
+      },
+      {
+        "frame": 245,
+        "x": 788.25,
+        "y": 199.5,
+        "detected": true
+      },
+      {
+        "frame": 246,
+        "x": 788.25,
+        "y": 198.9375,
+        "detected": true
+      },
+      {
+        "frame": 247,
+        "x": 787.5,
+        "y": 198.375,
+        "detected": true
+      },
+      {
+        "frame": 248,
+        "x": 789.0,
+        "y": 197.625,
+        "detected": true
+      },
+      {
+        "frame": 249,
+        "x": 792.0,
+        "y": 193.5,
+        "detected": true
+      },
+      {
+        "frame": 250,
+        "x": 793.5,
+        "y": 192.75,
+        "detected": true
+      },
+      {
+        "frame": 251,
+        "x": 795.0,
+        "y": 189.375,
+        "detected": true
+      },
+      {
+        "frame": 252,
+        "x": 796.5,
+        "y": 187.875,
+        "detected": true
+      },
+      {
+        "frame": 253,
+        "x": 795.75,
+        "y": 186.0,
+        "detected": true
+      },
+      {
+        "frame": 254,
+        "x": 803.25,
+        "y": 185.25,
+        "detected": true
+      },
+      {
+        "frame": 255,
+        "x": 804.0,
+        "y": 185.0625,
+        "detected": true
+      },
+      {
+        "frame": 256,
+        "x": 804.0,
+        "y": 184.875,
+        "detected": true
+      },
+      {
+        "frame": 257,
+        "x": 804.0,
+        "y": 185.0625,
+        "detected": true
+      },
+      {
+        "frame": 258,
+        "x": 795.0,
+        "y": 183.75,
+        "detected": true
+      },
+      {
+        "frame": 259,
+        "x": 816.0,
+        "y": 176.0625,
+        "detected": true
+      },
+      {
+        "frame": 260,
+        "x": 816.75,
+        "y": 176.625,
+        "detected": true
+      },
+      {
+        "frame": 261,
+        "x": 816.75,
+        "y": 176.8125,
+        "detected": true
+      },
+      {
+        "frame": 262,
+        "x": 816.75,
+        "y": 176.625,
+        "detected": true
+      },
+      {
+        "frame": 263,
+        "x": 814.5,
+        "y": 181.875,
+        "detected": true
+      },
+      {
+        "frame": 264,
+        "x": 822.0,
+        "y": 165.9375,
+        "detected": true
+      },
+      {
+        "frame": 265,
+        "x": 822.0,
+        "y": 166.3125,
+        "detected": true
+      },
+      {
+        "frame": 266,
+        "x": 820.5,
+        "y": 166.6875,
+        "detected": true
+      },
+      {
+        "frame": 267,
+        "x": 821.25,
+        "y": 165.1875,
+        "detected": true
+      },
+      {
+        "frame": 268,
+        "x": 824.25,
+        "y": 162.375,
+        "detected": true
+      },
+      {
+        "frame": 269,
+        "x": 820.5,
+        "y": 165.0,
+        "detected": true
+      },
+      {
+        "frame": 270,
+        "x": 820.5,
+        "y": 165.375,
+        "detected": true
+      },
+      {
+        "frame": 271,
+        "x": 820.5,
+        "y": 165.421875,
+        "detected": true
+      },
+      {
+        "frame": 272,
+        "x": 820.5,
+        "y": 165.703125,
+        "detected": true
+      },
+      {
+        "frame": 273,
+        "x": 824.25,
+        "y": 160.5,
+        "detected": true
+      },
+      {
+        "frame": 274,
+        "x": 820.5,
+        "y": 164.203125,
+        "detected": true
+      },
+      {
+        "frame": 275,
+        "x": 819.0,
+        "y": 166.828125,
+        "detected": true
+      },
+      {
+        "frame": 276,
+        "x": 819.0,
+        "y": 166.6875,
+        "detected": true
+      },
+      {
+        "frame": 277,
+        "x": 819.0,
+        "y": 166.875,
+        "detected": true
+      },
+      {
+        "frame": 278,
+        "x": 827.25,
+        "y": 160.125,
+        "detected": true
+      },
+      {
+        "frame": 279,
+        "x": 834.0,
+        "y": 159.375,
+        "detected": true
+      },
+      {
+        "frame": 280,
+        "x": 834.0,
+        "y": 157.3125,
+        "detected": true
+      },
+      {
+        "frame": 281,
+        "x": 834.0,
+        "y": 158.953125,
+        "detected": true
+      },
+      {
+        "frame": 282,
+        "x": null,
+        "y": null,
+        "detected": false
+      }
+    ],
+    "user_label": "Smash",
+    "court_area": null,
+    "stats": {
+      "total_frames": 130,
+      "detected_frames": 126,
+      "detection_rate": 0.9692307692307692
+    },
+    "metadata": {
+      "predicted_type": "Clear",
+      "correct": false,
+      "old_params": {
+        "overall_slope": -81.49252717391303,
+        "highest_position_ratio": 0.96,
+        "velocity": 84.45685577392578,
+        "acceleration": 0.2218625731567725,
+        "y_range": 83.13315217391303,
+        "high_ball_ratio": 1.0,
+        "last_frames_low": false,
+        "has_turning_point": false,
+        "turning_point_info": ""
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-09T15:48:32.723762",
+    "start_frame": 284,
+    "end_frame": 477,
+    "trajectory": [
+      {
+        "frame": 284,
+        "x": 765.7777777777778,
+        "y": 551.2222222222222,
+        "detected": true
+      },
+      {
+        "frame": 285,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 286,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 287,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 288,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 289,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 290,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 291,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 292,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 293,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 294,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 295,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 296,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 297,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 298,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 299,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 300,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 301,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 302,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 303,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 304,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 305,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 306,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 307,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 308,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 309,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 310,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 311,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 312,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 313,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 314,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 315,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 316,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 317,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 318,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 319,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 320,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 321,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 322,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 323,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 324,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 325,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 326,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 327,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 328,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 329,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 330,
+        "x": 905.0,
+        "y": 643.0,
+        "detected": true
+      },
+      {
+        "frame": 331,
+        "x": 903.0,
+        "y": 645.0,
+        "detected": true
+      },
+      {
+        "frame": 332,
+        "x": 902.0,
+        "y": 648.0,
+        "detected": true
+      },
+      {
+        "frame": 333,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 334,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 335,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 336,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 337,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 338,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 339,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 340,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 341,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 342,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 343,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 344,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 345,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 346,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 347,
+        "x": 917.6818181818181,
+        "y": 648.5227272727273,
+        "detected": true
+      },
+      {
+        "frame": 348,
+        "x": 905.0,
+        "y": 623.0,
+        "detected": true
+      },
+      {
+        "frame": 349,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 350,
+        "x": 918.75,
+        "y": 560.625,
+        "detected": true
+      },
+      {
+        "frame": 351,
+        "x": 922.5,
+        "y": 543.75,
+        "detected": true
+      },
+      {
+        "frame": 352,
+        "x": 927.0,
+        "y": 528.375,
+        "detected": true
+      },
+      {
+        "frame": 353,
+        "x": 928.5,
+        "y": 511.875,
+        "detected": true
+      },
+      {
+        "frame": 354,
+        "x": 933.0,
+        "y": 497.25,
+        "detected": true
+      },
+      {
+        "frame": 355,
+        "x": 934.5,
+        "y": 480.75,
+        "detected": true
+      },
+      {
+        "frame": 356,
+        "x": 934.5,
+        "y": 471.75,
+        "detected": true
+      },
+      {
+        "frame": 357,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 358,
+        "x": 942.0862068965517,
+        "y": 452.3448275862069,
+        "detected": true
+      },
+      {
+        "frame": 359,
+        "x": 948.1428571428571,
+        "y": 425.6530612244898,
+        "detected": true
+      },
+      {
+        "frame": 360,
+        "x": 951.7878787878788,
+        "y": 410.6666666666667,
+        "detected": true
+      },
+      {
+        "frame": 361,
+        "x": 955.5714285714286,
+        "y": 399.57142857142856,
+        "detected": true
+      },
+      {
+        "frame": 362,
+        "x": 958.6315789473684,
+        "y": 385.57894736842104,
+        "detected": true
+      },
+      {
+        "frame": 363,
+        "x": 962.425,
+        "y": 370.875,
+        "detected": true
+      },
+      {
+        "frame": 364,
+        "x": 964.6190476190476,
+        "y": 361.06349206349205,
+        "detected": true
+      },
+      {
+        "frame": 365,
+        "x": 972.0,
+        "y": 352.875,
+        "detected": true
+      },
+      {
+        "frame": 366,
+        "x": 973.5,
+        "y": 339.0,
+        "detected": true
+      },
+      {
+        "frame": 367,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 368,
+        "x": 979.5,
+        "y": 314.625,
+        "detected": true
+      },
+      {
+        "frame": 369,
+        "x": 985.5,
+        "y": 306.375,
+        "detected": true
+      },
+      {
+        "frame": 370,
+        "x": 985.5,
+        "y": 297.75,
+        "detected": true
+      },
+      {
+        "frame": 371,
+        "x": 987.0,
+        "y": 291.0,
+        "detected": true
+      },
+      {
+        "frame": 372,
+        "x": 991.5,
+        "y": 278.625,
+        "detected": true
+      },
+      {
+        "frame": 373,
+        "x": 995.25,
+        "y": 268.125,
+        "detected": true
+      },
+      {
+        "frame": 374,
+        "x": 996.75,
+        "y": 261.0,
+        "detected": true
+      },
+      {
+        "frame": 375,
+        "x": 1000.5,
+        "y": 250.125,
+        "detected": true
+      },
+      {
+        "frame": 376,
+        "x": 1002.0,
+        "y": 243.75,
+        "detected": true
+      },
+      {
+        "frame": 377,
+        "x": 1005.0,
+        "y": 235.125,
+        "detected": true
+      },
+      {
+        "frame": 378,
+        "x": 1006.5,
+        "y": 226.3125,
+        "detected": true
+      },
+      {
+        "frame": 379,
+        "x": 1010.25,
+        "y": 220.875,
+        "detected": true
+      },
+      {
+        "frame": 380,
+        "x": 1015.5,
+        "y": 211.125,
+        "detected": true
+      },
+      {
+        "frame": 381,
+        "x": 1020.0,
+        "y": 205.5,
+        "detected": true
+      },
+      {
+        "frame": 382,
+        "x": 1020.75,
+        "y": 198.375,
+        "detected": true
+      },
+      {
+        "frame": 383,
+        "x": 1023.0,
+        "y": 190.5,
+        "detected": true
+      },
+      {
+        "frame": 384,
+        "x": 1026.0,
+        "y": 186.0,
+        "detected": true
+      },
+      {
+        "frame": 385,
+        "x": 1030.5,
+        "y": 181.5,
+        "detected": true
+      },
+      {
+        "frame": 386,
+        "x": 1031.25,
+        "y": 175.125,
+        "detected": true
+      },
+      {
+        "frame": 387,
+        "x": 1033.5,
+        "y": 170.0625,
+        "detected": true
+      },
+      {
+        "frame": 388,
+        "x": 1036.5,
+        "y": 164.0625,
+        "detected": true
+      },
+      {
+        "frame": 389,
+        "x": 1039.5,
+        "y": 159.375,
+        "detected": true
+      },
+      {
+        "frame": 390,
+        "x": 1043.25,
+        "y": 157.078125,
+        "detected": true
+      },
+      {
+        "frame": 391,
+        "x": 1046.25,
+        "y": 152.90625,
+        "detected": true
+      },
+      {
+        "frame": 392,
+        "x": 1050.0,
+        "y": 148.125,
+        "detected": true
+      },
+      {
+        "frame": 393,
+        "x": 1051.5,
+        "y": 145.3125,
+        "detected": true
+      },
+      {
+        "frame": 394,
+        "x": 1053.0,
+        "y": 141.75,
+        "detected": true
+      },
+      {
+        "frame": 395,
+        "x": 1057.5,
+        "y": 139.03125,
+        "detected": true
+      },
+      {
+        "frame": 396,
+        "x": 1062.0,
+        "y": 136.6875,
+        "detected": true
+      },
+      {
+        "frame": 397,
+        "x": 1063.5,
+        "y": 134.625,
+        "detected": true
+      },
+      {
+        "frame": 398,
+        "x": 1065.0,
+        "y": 133.3125,
+        "detected": true
+      },
+      {
+        "frame": 399,
+        "x": 1067.25,
+        "y": 132.46875,
+        "detected": true
+      },
+      {
+        "frame": 400,
+        "x": 1073.25,
+        "y": 132.28125,
+        "detected": true
+      },
+      {
+        "frame": 401,
+        "x": 1078.5,
+        "y": 135.65625,
+        "detected": true
+      },
+      {
+        "frame": 402,
+        "x": 1076.25,
+        "y": 129.28125,
+        "detected": true
+      },
+      {
+        "frame": 403,
+        "x": 1077.0,
+        "y": 128.8125,
+        "detected": true
+      },
+      {
+        "frame": 404,
+        "x": 1082.25,
+        "y": 130.3125,
+        "detected": true
+      },
+      {
+        "frame": 405,
+        "x": 1086.0,
+        "y": 132.1875,
+        "detected": true
+      },
+      {
+        "frame": 406,
+        "x": 1088.25,
+        "y": 134.0625,
+        "detected": true
+      },
+      {
+        "frame": 407,
+        "x": 1090.5,
+        "y": 135.1875,
+        "detected": true
+      },
+      {
+        "frame": 408,
+        "x": 1095.0,
+        "y": 137.8125,
+        "detected": true
+      },
+      {
+        "frame": 409,
+        "x": 1098.0,
+        "y": 139.78125,
+        "detected": true
+      },
+      {
+        "frame": 410,
+        "x": 1100.25,
+        "y": 143.34375,
+        "detected": true
+      },
+      {
+        "frame": 411,
+        "x": 1102.5,
+        "y": 148.5,
+        "detected": true
+      },
+      {
+        "frame": 412,
+        "x": 1107.0,
+        "y": 153.75,
+        "detected": true
+      },
+      {
+        "frame": 413,
+        "x": 1107.0,
+        "y": 152.625,
+        "detected": true
+      },
+      {
+        "frame": 414,
+        "x": 1106.25,
+        "y": 157.3125,
+        "detected": true
+      },
+      {
+        "frame": 415,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 416,
+        "x": 1115.0964912280701,
+        "y": 167.69298245614036,
+        "detected": true
+      },
+      {
+        "frame": 417,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 418,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 419,
+        "x": 1110.0,
+        "y": 157.3125,
+        "detected": true
+      },
+      {
+        "frame": 420,
+        "x": 1105.5,
+        "y": 155.53125,
+        "detected": true
+      },
+      {
+        "frame": 421,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 422,
+        "x": 1120.5,
+        "y": 133.0,
+        "detected": true
+      },
+      {
+        "frame": 423,
+        "x": 1133.0,
+        "y": 267.0,
+        "detected": true
+      },
+      {
+        "frame": 424,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 425,
+        "x": 1123.6363636363637,
+        "y": 347.3181818181818,
+        "detected": true
+      },
+      {
+        "frame": 426,
+        "x": 1059.0,
+        "y": 238.875,
+        "detected": true
+      },
+      {
+        "frame": 427,
+        "x": 1048.5,
+        "y": 238.125,
+        "detected": true
+      },
+      {
+        "frame": 428,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 429,
+        "x": 1042.5,
+        "y": 236.0625,
+        "detected": true
+      },
+      {
+        "frame": 430,
+        "x": 1024.5,
+        "y": 239.25,
+        "detected": true
+      },
+      {
+        "frame": 431,
+        "x": 1023.0,
+        "y": 239.625,
+        "detected": true
+      },
+      {
+        "frame": 432,
+        "x": 1021.5,
+        "y": 242.25,
+        "detected": true
+      },
+      {
+        "frame": 433,
+        "x": 1011.0,
+        "y": 242.8125,
+        "detected": true
+      },
+      {
+        "frame": 434,
+        "x": 1006.5,
+        "y": 241.5,
+        "detected": true
+      },
+      {
+        "frame": 435,
+        "x": 1014.0,
+        "y": 238.875,
+        "detected": true
+      },
+      {
+        "frame": 436,
+        "x": 1008.0,
+        "y": 239.625,
+        "detected": true
+      },
+      {
+        "frame": 437,
+        "x": 1000.5,
+        "y": 244.125,
+        "detected": true
+      },
+      {
+        "frame": 438,
+        "x": 1002.0,
+        "y": 242.4375,
+        "detected": true
+      },
+      {
+        "frame": 439,
+        "x": 1028.25,
+        "y": 226.6875,
+        "detected": true
+      },
+      {
+        "frame": 440,
+        "x": 999.0,
+        "y": 247.875,
+        "detected": true
+      },
+      {
+        "frame": 441,
+        "x": 997.5,
+        "y": 246.9375,
+        "detected": true
+      },
+      {
+        "frame": 442,
+        "x": 999.0,
+        "y": 244.875,
+        "detected": true
+      },
+      {
+        "frame": 443,
+        "x": 999.0,
+        "y": 243.5625,
+        "detected": true
+      },
+      {
+        "frame": 444,
+        "x": 999.0,
+        "y": 241.125,
+        "detected": true
+      },
+      {
+        "frame": 445,
+        "x": 1002.0,
+        "y": 240.75,
+        "detected": true
+      },
+      {
+        "frame": 446,
+        "x": 1000.5,
+        "y": 240.375,
+        "detected": true
+      },
+      {
+        "frame": 447,
+        "x": 1001.25,
+        "y": 240.9375,
+        "detected": true
+      },
+      {
+        "frame": 448,
+        "x": 1000.5,
+        "y": 240.375,
+        "detected": true
+      },
+      {
+        "frame": 449,
+        "x": 1006.5,
+        "y": 236.25,
+        "detected": true
+      },
+      {
+        "frame": 450,
+        "x": 1002.75,
+        "y": 238.125,
+        "detected": true
+      },
+      {
+        "frame": 451,
+        "x": 1002.0,
+        "y": 237.5625,
+        "detected": true
+      },
+      {
+        "frame": 452,
+        "x": 1002.0,
+        "y": 240.375,
+        "detected": true
+      },
+      {
+        "frame": 453,
+        "x": 1003.5,
+        "y": 240.375,
+        "detected": true
+      },
+      {
+        "frame": 454,
+        "x": 975.0,
+        "y": 292.5,
+        "detected": true
+      },
+      {
+        "frame": 455,
+        "x": 975.0,
+        "y": 292.5,
+        "detected": true
+      },
+      {
+        "frame": 456,
+        "x": 975.0,
+        "y": 292.5,
+        "detected": true
+      },
+      {
+        "frame": 457,
+        "x": 975.0,
+        "y": 293.25,
+        "detected": true
+      },
+      {
+        "frame": 458,
+        "x": 975.0,
+        "y": 293.625,
+        "detected": true
+      },
+      {
+        "frame": 459,
+        "x": 979.5,
+        "y": 289.875,
+        "detected": true
+      },
+      {
+        "frame": 460,
+        "x": 981.0,
+        "y": 290.0625,
+        "detected": true
+      },
+      {
+        "frame": 461,
+        "x": 981.0,
+        "y": 289.125,
+        "detected": true
+      },
+      {
+        "frame": 462,
+        "x": 976.5,
+        "y": 292.5,
+        "detected": true
+      },
+      {
+        "frame": 463,
+        "x": 976.5,
+        "y": 292.5,
+        "detected": true
+      },
+      {
+        "frame": 464,
+        "x": 979.5,
+        "y": 289.125,
+        "detected": true
+      },
+      {
+        "frame": 465,
+        "x": 985.5,
+        "y": 285.5625,
+        "detected": true
+      },
+      {
+        "frame": 466,
+        "x": 985.5,
+        "y": 285.5625,
+        "detected": true
+      },
+      {
+        "frame": 467,
+        "x": 985.5,
+        "y": 285.375,
+        "detected": true
+      },
+      {
+        "frame": 468,
+        "x": 987.0,
+        "y": 282.75,
+        "detected": true
+      },
+      {
+        "frame": 469,
+        "x": 981.0,
+        "y": 288.9375,
+        "detected": true
+      },
+      {
+        "frame": 470,
+        "x": 978.0,
+        "y": 291.75,
+        "detected": true
+      },
+      {
+        "frame": 471,
+        "x": 976.5,
+        "y": 291.75,
+        "detected": true
+      },
+      {
+        "frame": 472,
+        "x": 978.0,
+        "y": 291.375,
+        "detected": true
+      },
+      {
+        "frame": 473,
+        "x": 977.25,
+        "y": 290.8125,
+        "detected": true
+      },
+      {
+        "frame": 474,
+        "x": 978.0,
+        "y": 293.25,
+        "detected": true
+      },
+      {
+        "frame": 475,
+        "x": 976.5,
+        "y": 291.1875,
+        "detected": true
+      },
+      {
+        "frame": 476,
+        "x": 978.0,
+        "y": 292.6875,
+        "detected": true
+      },
+      {
+        "frame": 477,
+        "x": null,
+        "y": null,
+        "detected": false
+      }
+    ],
+    "user_label": "Clear",
+    "court_area": null,
+    "stats": {
+      "total_frames": 194,
+      "detected_frames": 125,
+      "detection_rate": 0.6443298969072165
+    },
+    "metadata": {
+      "predicted_type": "Clear",
+      "correct": true,
+      "old_params": {
+        "overall_slope": 54.5625,
+        "highest_position_ratio": 0.22448979591836735,
+        "velocity": 206.26663208007812,
+        "acceleration": 7.314375877380371,
+        "y_range": 67.5,
+        "high_ball_ratio": 1.0,
+        "last_frames_low": false,
+        "has_turning_point": false,
+        "turning_point_info": ""
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-09T15:48:46.605264",
+    "start_frame": 478,
+    "end_frame": 609,
+    "trajectory": [
+      {
+        "frame": 478,
+        "x": 962.0,
+        "y": 380.0,
+        "detected": true
+      },
+      {
+        "frame": 479,
+        "x": 961.0,
+        "y": 383.0,
+        "detected": true
+      },
+      {
+        "frame": 480,
+        "x": 961.5,
+        "y": 387.5,
+        "detected": true
+      },
+      {
+        "frame": 481,
+        "x": 961.0,
+        "y": 392.0,
+        "detected": true
+      },
+      {
+        "frame": 482,
+        "x": 961.421052631579,
+        "y": 391.10526315789474,
+        "detected": true
+      },
+      {
+        "frame": 483,
+        "x": 961.0,
+        "y": 396.5,
+        "detected": true
+      },
+      {
+        "frame": 484,
+        "x": 961.0,
+        "y": 401.0,
+        "detected": true
+      },
+      {
+        "frame": 485,
+        "x": 960.578947368421,
+        "y": 405.89473684210526,
+        "detected": true
+      },
+      {
+        "frame": 486,
+        "x": 960.578947368421,
+        "y": 409.89473684210526,
+        "detected": true
+      },
+      {
+        "frame": 487,
+        "x": 960.6,
+        "y": 415.4,
+        "detected": true
+      },
+      {
+        "frame": 488,
+        "x": 960.5,
+        "y": 420.0,
+        "detected": true
+      },
+      {
+        "frame": 489,
+        "x": 960.5,
+        "y": 425.5,
+        "detected": true
+      },
+      {
+        "frame": 490,
+        "x": 960.5,
+        "y": 429.5,
+        "detected": true
+      },
+      {
+        "frame": 491,
+        "x": 960.1739130434783,
+        "y": 435.0,
+        "detected": true
+      },
+      {
+        "frame": 492,
+        "x": 960.0,
+        "y": 440.0,
+        "detected": true
+      },
+      {
+        "frame": 493,
+        "x": 960.0,
+        "y": 445.0,
+        "detected": true
+      },
+      {
+        "frame": 494,
+        "x": 960.421052631579,
+        "y": 450.10526315789474,
+        "detected": true
+      },
+      {
+        "frame": 495,
+        "x": 960.0909090909091,
+        "y": 455.09090909090907,
+        "detected": true
+      },
+      {
+        "frame": 496,
+        "x": 959.6666666666666,
+        "y": 460.8333333333333,
+        "detected": true
+      },
+      {
+        "frame": 497,
+        "x": 959.6666666666666,
+        "y": 466.0,
+        "detected": true
+      },
+      {
+        "frame": 498,
+        "x": 963.0,
+        "y": 477.75,
+        "detected": true
+      },
+      {
+        "frame": 499,
+        "x": 963.0,
+        "y": 485.25,
+        "detected": true
+      },
+      {
+        "frame": 500,
+        "x": 963.0,
+        "y": 488.25,
+        "detected": true
+      },
+      {
+        "frame": 501,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 502,
+        "x": 960.0,
+        "y": 493.0,
+        "detected": true
+      },
+      {
+        "frame": 503,
+        "x": 960.0,
+        "y": 498.0,
+        "detected": true
+      },
+      {
+        "frame": 504,
+        "x": 960.0,
+        "y": 503.5,
+        "detected": true
+      },
+      {
+        "frame": 505,
+        "x": 960.0,
+        "y": 509.5,
+        "detected": true
+      },
+      {
+        "frame": 506,
+        "x": 959.6666666666666,
+        "y": 515.0,
+        "detected": true
+      },
+      {
+        "frame": 507,
+        "x": 959.6,
+        "y": 520.4,
+        "detected": true
+      },
+      {
+        "frame": 508,
+        "x": 959.578947368421,
+        "y": 525.8947368421053,
+        "detected": true
+      },
+      {
+        "frame": 509,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 510,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 511,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 512,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 513,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 514,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 515,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 516,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 517,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 518,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 519,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 520,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 521,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 522,
+        "x": 994.5,
+        "y": 377.25,
+        "detected": true
+      },
+      {
+        "frame": 523,
+        "x": 996.75,
+        "y": 367.5,
+        "detected": true
+      },
+      {
+        "frame": 524,
+        "x": 1000.5,
+        "y": 358.5,
+        "detected": true
+      },
+      {
+        "frame": 525,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 526,
+        "x": 1011.0,
+        "y": 338.8125,
+        "detected": true
+      },
+      {
+        "frame": 527,
+        "x": 1015.5,
+        "y": 331.3125,
+        "detected": true
+      },
+      {
+        "frame": 528,
+        "x": 1020.0,
+        "y": 320.625,
+        "detected": true
+      },
+      {
+        "frame": 529,
+        "x": 1024.5,
+        "y": 311.0625,
+        "detected": true
+      },
+      {
+        "frame": 530,
+        "x": 1027.5,
+        "y": 307.125,
+        "detected": true
+      },
+      {
+        "frame": 531,
+        "x": 1033.5,
+        "y": 296.625,
+        "detected": true
+      },
+      {
+        "frame": 532,
+        "x": 1037.25,
+        "y": 290.8125,
+        "detected": true
+      },
+      {
+        "frame": 533,
+        "x": 1041.0,
+        "y": 280.875,
+        "detected": true
+      },
+      {
+        "frame": 534,
+        "x": 1042.5,
+        "y": 277.5,
+        "detected": true
+      },
+      {
+        "frame": 535,
+        "x": 1048.5,
+        "y": 267.9375,
+        "detected": true
+      },
+      {
+        "frame": 536,
+        "x": 1052.25,
+        "y": 262.5,
+        "detected": true
+      },
+      {
+        "frame": 537,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 538,
+        "x": 1057.1041666666667,
+        "y": 257.625,
+        "detected": true
+      },
+      {
+        "frame": 539,
+        "x": 1069.0821917808219,
+        "y": 242.21917808219177,
+        "detected": true
+      },
+      {
+        "frame": 540,
+        "x": 1072.5,
+        "y": 239.625,
+        "detected": true
+      },
+      {
+        "frame": 541,
+        "x": 1077.75,
+        "y": 234.0,
+        "detected": true
+      },
+      {
+        "frame": 542,
+        "x": 1083.0,
+        "y": 230.25,
+        "detected": true
+      },
+      {
+        "frame": 543,
+        "x": 1087.5,
+        "y": 224.4375,
+        "detected": true
+      },
+      {
+        "frame": 544,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 545,
+        "x": 1096.5,
+        "y": 216.375,
+        "detected": true
+      },
+      {
+        "frame": 546,
+        "x": 1100.25,
+        "y": 212.25,
+        "detected": true
+      },
+      {
+        "frame": 547,
+        "x": 1105.5,
+        "y": 210.0,
+        "detected": true
+      },
+      {
+        "frame": 548,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 549,
+        "x": 1107.639344262295,
+        "y": 209.29508196721312,
+        "detected": true
+      },
+      {
+        "frame": 550,
+        "x": 1122.904761904762,
+        "y": 202.1904761904762,
+        "detected": true
+      },
+      {
+        "frame": 551,
+        "x": 1127.7627118644068,
+        "y": 200.6271186440678,
+        "detected": true
+      },
+      {
+        "frame": 552,
+        "x": 1133.060606060606,
+        "y": 197.87878787878788,
+        "detected": true
+      },
+      {
+        "frame": 553,
+        "x": 1138.2448979591836,
+        "y": 197.85714285714286,
+        "detected": true
+      },
+      {
+        "frame": 554,
+        "x": 1143.274193548387,
+        "y": 199.38709677419354,
+        "detected": true
+      },
+      {
+        "frame": 555,
+        "x": 1147.3823529411766,
+        "y": 200.10294117647058,
+        "detected": true
+      },
+      {
+        "frame": 556,
+        "x": 1140.8939393939395,
+        "y": 199.13636363636363,
+        "detected": true
+      },
+      {
+        "frame": 557,
+        "x": 1146.4657534246576,
+        "y": 200.12328767123287,
+        "detected": true
+      },
+      {
+        "frame": 558,
+        "x": 1151.380281690141,
+        "y": 201.46478873239437,
+        "detected": true
+      },
+      {
+        "frame": 559,
+        "x": 1157.2888888888888,
+        "y": 203.43333333333334,
+        "detected": true
+      },
+      {
+        "frame": 560,
+        "x": 1201.4558823529412,
+        "y": 186.23529411764707,
+        "detected": true
+      },
+      {
+        "frame": 561,
+        "x": 1173.679012345679,
+        "y": 216.320987654321,
+        "detected": true
+      },
+      {
+        "frame": 562,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 563,
+        "x": 1178.5855855855855,
+        "y": 216.19819819819818,
+        "detected": true
+      },
+      {
+        "frame": 564,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 565,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 566,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 567,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 568,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 569,
+        "x": 1104.2871287128712,
+        "y": 280.7920792079208,
+        "detected": true
+      },
+      {
+        "frame": 570,
+        "x": 1084.949152542373,
+        "y": 291.77966101694915,
+        "detected": true
+      },
+      {
+        "frame": 571,
+        "x": 1078.864406779661,
+        "y": 296.0,
+        "detected": true
+      },
+      {
+        "frame": 572,
+        "x": 1073.9583333333333,
+        "y": 302.6458333333333,
+        "detected": true
+      },
+      {
+        "frame": 573,
+        "x": 1069.3076923076924,
+        "y": 307.53846153846155,
+        "detected": true
+      },
+      {
+        "frame": 574,
+        "x": 1064.4893617021276,
+        "y": 309.2340425531915,
+        "detected": true
+      },
+      {
+        "frame": 575,
+        "x": 1060.5,
+        "y": 315.3636363636364,
+        "detected": true
+      },
+      {
+        "frame": 576,
+        "x": 1058.0,
+        "y": 320.0,
+        "detected": true
+      },
+      {
+        "frame": 577,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 578,
+        "x": 1051.05,
+        "y": 323.9,
+        "detected": true
+      },
+      {
+        "frame": 579,
+        "x": 1047.8076923076924,
+        "y": 320.88461538461536,
+        "detected": true
+      },
+      {
+        "frame": 580,
+        "x": 1043.9259259259259,
+        "y": 321.25925925925924,
+        "detected": true
+      },
+      {
+        "frame": 581,
+        "x": 1039.857142857143,
+        "y": 321.64285714285717,
+        "detected": true
+      },
+      {
+        "frame": 582,
+        "x": 1035.7777777777778,
+        "y": 321.6666666666667,
+        "detected": true
+      },
+      {
+        "frame": 583,
+        "x": 1031.7777777777778,
+        "y": 321.6666666666667,
+        "detected": true
+      },
+      {
+        "frame": 584,
+        "x": 1027.0,
+        "y": 321.0,
+        "detected": true
+      },
+      {
+        "frame": 585,
+        "x": 1023.7777777777778,
+        "y": 321.6666666666667,
+        "detected": true
+      },
+      {
+        "frame": 586,
+        "x": 1023.0,
+        "y": 319.125,
+        "detected": true
+      },
+      {
+        "frame": 587,
+        "x": 1026.0,
+        "y": 316.875,
+        "detected": true
+      },
+      {
+        "frame": 588,
+        "x": 1025.25,
+        "y": 316.875,
+        "detected": true
+      },
+      {
+        "frame": 589,
+        "x": 1036.5,
+        "y": 358.875,
+        "detected": true
+      },
+      {
+        "frame": 590,
+        "x": 1035.75,
+        "y": 357.84375,
+        "detected": true
+      },
+      {
+        "frame": 591,
+        "x": 1036.5,
+        "y": 358.5,
+        "detected": true
+      },
+      {
+        "frame": 592,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 593,
+        "x": 1033.0,
+        "y": 368.3333333333333,
+        "detected": true
+      },
+      {
+        "frame": 594,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 595,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 596,
+        "x": 1031.5,
+        "y": 377.5,
+        "detected": true
+      },
+      {
+        "frame": 597,
+        "x": 1026.75,
+        "y": 317.25,
+        "detected": true
+      },
+      {
+        "frame": 598,
+        "x": 1025.25,
+        "y": 316.875,
+        "detected": true
+      },
+      {
+        "frame": 599,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 600,
+        "x": 1030.0,
+        "y": 385.5,
+        "detected": true
+      },
+      {
+        "frame": 601,
+        "x": 1029.5,
+        "y": 393.0,
+        "detected": true
+      },
+      {
+        "frame": 602,
+        "x": 1029.0,
+        "y": 388.5,
+        "detected": true
+      },
+      {
+        "frame": 603,
+        "x": 1027.5,
+        "y": 389.25,
+        "detected": true
+      },
+      {
+        "frame": 604,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 605,
+        "x": 1028.0,
+        "y": 402.6666666666667,
+        "detected": true
+      },
+      {
+        "frame": 606,
+        "x": 1027.6,
+        "y": 411.4,
+        "detected": true
+      },
+      {
+        "frame": 607,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 608,
+        "x": 1028.0,
+        "y": 408.45454545454544,
+        "detected": true
+      },
+      {
+        "frame": 609,
+        "x": null,
+        "y": null,
+        "detected": false
+      }
+    ],
+    "user_label": "Clear",
+    "court_area": null,
+    "stats": {
+      "total_frames": 132,
+      "detected_frames": 100,
+      "detection_rate": 0.7575757575757576
+    },
+    "metadata": {
+      "predicted_type": "Drop",
+      "correct": false,
+      "old_params": {
+        "overall_slope": 205.0212121212121,
+        "highest_position_ratio": 0.025,
+        "velocity": 251.48906411827744,
+        "acceleration": -3.02764269201319,
+        "y_range": 222.21925133689837,
+        "high_ball_ratio": 0.65,
+        "last_frames_low": true,
+        "has_turning_point": false,
+        "turning_point_info": ""
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-09T15:49:03.683092",
+    "start_frame": 609,
+    "end_frame": 797,
+    "trajectory": [
+      {
+        "frame": 609,
+        "x": 1024.5,
+        "y": 423.0,
+        "detected": true
+      },
+      {
+        "frame": 610,
+        "x": 1026.0,
+        "y": 424.5,
+        "detected": true
+      },
+      {
+        "frame": 611,
+        "x": 1026.0,
+        "y": 428.25,
+        "detected": true
+      },
+      {
+        "frame": 612,
+        "x": 1025.25,
+        "y": 433.5,
+        "detected": true
+      },
+      {
+        "frame": 613,
+        "x": 1026.0,
+        "y": 436.125,
+        "detected": true
+      },
+      {
+        "frame": 614,
+        "x": 1025.25,
+        "y": 441.0,
+        "detected": true
+      },
+      {
+        "frame": 615,
+        "x": 1026.0,
+        "y": 446.25,
+        "detected": true
+      },
+      {
+        "frame": 616,
+        "x": 1026.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 617,
+        "x": 1025.25,
+        "y": 453.0,
+        "detected": true
+      },
+      {
+        "frame": 618,
+        "x": 1024.5,
+        "y": 457.125,
+        "detected": true
+      },
+      {
+        "frame": 619,
+        "x": 1025.25,
+        "y": 459.375,
+        "detected": true
+      },
+      {
+        "frame": 620,
+        "x": 1026.0,
+        "y": 464.25,
+        "detected": true
+      },
+      {
+        "frame": 621,
+        "x": 1027.5,
+        "y": 471.0,
+        "detected": true
+      },
+      {
+        "frame": 622,
+        "x": 1027.5,
+        "y": 472.5,
+        "detected": true
+      },
+      {
+        "frame": 623,
+        "x": 1026.0,
+        "y": 479.25,
+        "detected": true
+      },
+      {
+        "frame": 624,
+        "x": 1026.0,
+        "y": 482.625,
+        "detected": true
+      },
+      {
+        "frame": 625,
+        "x": 1027.5,
+        "y": 486.75,
+        "detected": true
+      },
+      {
+        "frame": 626,
+        "x": 1027.5,
+        "y": 489.75,
+        "detected": true
+      },
+      {
+        "frame": 627,
+        "x": 1027.5,
+        "y": 496.5,
+        "detected": true
+      },
+      {
+        "frame": 628,
+        "x": 1026.75,
+        "y": 503.25,
+        "detected": true
+      },
+      {
+        "frame": 629,
+        "x": 1026.0,
+        "y": 507.0,
+        "detected": true
+      },
+      {
+        "frame": 630,
+        "x": 1026.75,
+        "y": 508.875,
+        "detected": true
+      },
+      {
+        "frame": 631,
+        "x": 1027.5,
+        "y": 513.75,
+        "detected": true
+      },
+      {
+        "frame": 632,
+        "x": 1030.5,
+        "y": 519.75,
+        "detected": true
+      },
+      {
+        "frame": 633,
+        "x": 1026.75,
+        "y": 523.5,
+        "detected": true
+      },
+      {
+        "frame": 634,
+        "x": 1026.0,
+        "y": 528.0,
+        "detected": true
+      },
+      {
+        "frame": 635,
+        "x": 1026.0,
+        "y": 531.0,
+        "detected": true
+      },
+      {
+        "frame": 636,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 637,
+        "x": 1027.4,
+        "y": 537.6,
+        "detected": true
+      },
+      {
+        "frame": 638,
+        "x": 1027.0,
+        "y": 542.5,
+        "detected": true
+      },
+      {
+        "frame": 639,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 640,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 641,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 642,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 643,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 644,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 645,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 646,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 647,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 648,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 649,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 650,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 651,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 652,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 653,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 654,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 655,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 656,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 657,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 658,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 659,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 660,
+        "x": 886.5,
+        "y": 471.75,
+        "detected": true
+      },
+      {
+        "frame": 661,
+        "x": 876.75,
+        "y": 449.625,
+        "detected": true
+      },
+      {
+        "frame": 662,
+        "x": 876.0,
+        "y": 435.75,
+        "detected": true
+      },
+      {
+        "frame": 663,
+        "x": 876.0,
+        "y": 421.5,
+        "detected": true
+      },
+      {
+        "frame": 664,
+        "x": 873.0,
+        "y": 405.75,
+        "detected": true
+      },
+      {
+        "frame": 665,
+        "x": 871.5,
+        "y": 393.75,
+        "detected": true
+      },
+      {
+        "frame": 666,
+        "x": 867.75,
+        "y": 376.875,
+        "detected": true
+      },
+      {
+        "frame": 667,
+        "x": 867.75,
+        "y": 366.0,
+        "detected": true
+      },
+      {
+        "frame": 668,
+        "x": 866.25,
+        "y": 351.65625,
+        "detected": true
+      },
+      {
+        "frame": 669,
+        "x": 862.5,
+        "y": 340.125,
+        "detected": true
+      },
+      {
+        "frame": 670,
+        "x": 861.75,
+        "y": 327.375,
+        "detected": true
+      },
+      {
+        "frame": 671,
+        "x": 861.0,
+        "y": 314.25,
+        "detected": true
+      },
+      {
+        "frame": 672,
+        "x": 860.25,
+        "y": 303.0,
+        "detected": true
+      },
+      {
+        "frame": 673,
+        "x": 858.0,
+        "y": 293.625,
+        "detected": true
+      },
+      {
+        "frame": 674,
+        "x": 858.0,
+        "y": 282.1875,
+        "detected": true
+      },
+      {
+        "frame": 675,
+        "x": 853.5,
+        "y": 270.75,
+        "detected": true
+      },
+      {
+        "frame": 676,
+        "x": 852.0,
+        "y": 261.75,
+        "detected": true
+      },
+      {
+        "frame": 677,
+        "x": 848.25,
+        "y": 253.875,
+        "detected": true
+      },
+      {
+        "frame": 678,
+        "x": 847.5,
+        "y": 242.8125,
+        "detected": true
+      },
+      {
+        "frame": 679,
+        "x": 846.0,
+        "y": 231.9375,
+        "detected": true
+      },
+      {
+        "frame": 680,
+        "x": 843.0,
+        "y": 222.1875,
+        "detected": true
+      },
+      {
+        "frame": 681,
+        "x": 841.5,
+        "y": 213.75,
+        "detected": true
+      },
+      {
+        "frame": 682,
+        "x": 841.5,
+        "y": 206.8125,
+        "detected": true
+      },
+      {
+        "frame": 683,
+        "x": 837.0,
+        "y": 197.625,
+        "detected": true
+      },
+      {
+        "frame": 684,
+        "x": 835.5,
+        "y": 190.5,
+        "detected": true
+      },
+      {
+        "frame": 685,
+        "x": 834.0,
+        "y": 184.5,
+        "detected": true
+      },
+      {
+        "frame": 686,
+        "x": 831.0,
+        "y": 177.0,
+        "detected": true
+      },
+      {
+        "frame": 687,
+        "x": 828.75,
+        "y": 170.25,
+        "detected": true
+      },
+      {
+        "frame": 688,
+        "x": 828.0,
+        "y": 164.953125,
+        "detected": true
+      },
+      {
+        "frame": 689,
+        "x": 825.0,
+        "y": 159.5625,
+        "detected": true
+      },
+      {
+        "frame": 690,
+        "x": 822.0,
+        "y": 153.5625,
+        "detected": true
+      },
+      {
+        "frame": 691,
+        "x": 819.0,
+        "y": 145.875,
+        "detected": true
+      },
+      {
+        "frame": 692,
+        "x": 817.5,
+        "y": 140.0625,
+        "detected": true
+      },
+      {
+        "frame": 693,
+        "x": 817.5,
+        "y": 135.5625,
+        "detected": true
+      },
+      {
+        "frame": 694,
+        "x": 822.75,
+        "y": 132.9375,
+        "detected": true
+      },
+      {
+        "frame": 695,
+        "x": 821.25,
+        "y": 129.9375,
+        "detected": true
+      },
+      {
+        "frame": 696,
+        "x": 820.5,
+        "y": 129.375,
+        "detected": true
+      },
+      {
+        "frame": 697,
+        "x": 820.5,
+        "y": 127.21875,
+        "detected": true
+      },
+      {
+        "frame": 698,
+        "x": 810.75,
+        "y": 121.6875,
+        "detected": true
+      },
+      {
+        "frame": 699,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 700,
+        "x": 803.25,
+        "y": 110.8125,
+        "detected": true
+      },
+      {
+        "frame": 701,
+        "x": 999.0,
+        "y": 507.0,
+        "detected": true
+      },
+      {
+        "frame": 702,
+        "x": 1001.25,
+        "y": 508.125,
+        "detected": true
+      },
+      {
+        "frame": 703,
+        "x": 917.25,
+        "y": 342.75,
+        "detected": true
+      },
+      {
+        "frame": 704,
+        "x": 786.75,
+        "y": 103.5,
+        "detected": true
+      },
+      {
+        "frame": 705,
+        "x": 917.25,
+        "y": 342.75,
+        "detected": true
+      },
+      {
+        "frame": 706,
+        "x": 1000.5,
+        "y": 507.0,
+        "detected": true
+      },
+      {
+        "frame": 707,
+        "x": 876.75,
+        "y": 268.5,
+        "detected": true
+      },
+      {
+        "frame": 708,
+        "x": 874.5,
+        "y": 268.875,
+        "detected": true
+      },
+      {
+        "frame": 709,
+        "x": 875.25,
+        "y": 269.4375,
+        "detected": true
+      },
+      {
+        "frame": 710,
+        "x": 874.5,
+        "y": 269.625,
+        "detected": true
+      },
+      {
+        "frame": 711,
+        "x": 919.5,
+        "y": 340.875,
+        "detected": true
+      },
+      {
+        "frame": 712,
+        "x": 873.0,
+        "y": 268.6875,
+        "detected": true
+      },
+      {
+        "frame": 713,
+        "x": 873.0,
+        "y": 268.6875,
+        "detected": true
+      },
+      {
+        "frame": 714,
+        "x": 873.0,
+        "y": 268.875,
+        "detected": true
+      },
+      {
+        "frame": 715,
+        "x": 878.25,
+        "y": 261.375,
+        "detected": true
+      },
+      {
+        "frame": 716,
+        "x": 919.5,
+        "y": 341.25,
+        "detected": true
+      },
+      {
+        "frame": 717,
+        "x": 916.5,
+        "y": 342.75,
+        "detected": true
+      },
+      {
+        "frame": 718,
+        "x": 918.0,
+        "y": 341.4375,
+        "detected": true
+      },
+      {
+        "frame": 719,
+        "x": 916.5,
+        "y": 341.8125,
+        "detected": true
+      },
+      {
+        "frame": 720,
+        "x": 921.0,
+        "y": 336.375,
+        "detected": true
+      },
+      {
+        "frame": 721,
+        "x": 923.25,
+        "y": 333.75,
+        "detected": true
+      },
+      {
+        "frame": 722,
+        "x": 999.0,
+        "y": 506.25,
+        "detected": true
+      },
+      {
+        "frame": 723,
+        "x": 1001.25,
+        "y": 507.75,
+        "detected": true
+      },
+      {
+        "frame": 724,
+        "x": 1002.75,
+        "y": 506.25,
+        "detected": true
+      },
+      {
+        "frame": 725,
+        "x": 1013.25,
+        "y": 490.5,
+        "detected": true
+      },
+      {
+        "frame": 726,
+        "x": 1018.5,
+        "y": 489.0,
+        "detected": true
+      },
+      {
+        "frame": 727,
+        "x": 1018.5,
+        "y": 486.75,
+        "detected": true
+      },
+      {
+        "frame": 728,
+        "x": 1017.0,
+        "y": 486.0,
+        "detected": true
+      },
+      {
+        "frame": 729,
+        "x": 1020.0,
+        "y": 487.5,
+        "detected": true
+      },
+      {
+        "frame": 730,
+        "x": 997.5,
+        "y": 504.75,
+        "detected": true
+      },
+      {
+        "frame": 731,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 732,
+        "x": 675.0,
+        "y": 210.0,
+        "detected": true
+      },
+      {
+        "frame": 733,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 734,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 735,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 736,
+        "x": 993.0,
+        "y": 510.0,
+        "detected": true
+      },
+      {
+        "frame": 737,
+        "x": 996.75,
+        "y": 508.125,
+        "detected": true
+      },
+      {
+        "frame": 738,
+        "x": 993.75,
+        "y": 507.75,
+        "detected": true
+      },
+      {
+        "frame": 739,
+        "x": 994.5,
+        "y": 508.5,
+        "detected": true
+      },
+      {
+        "frame": 740,
+        "x": 994.5,
+        "y": 509.25,
+        "detected": true
+      },
+      {
+        "frame": 741,
+        "x": 992.25,
+        "y": 509.25,
+        "detected": true
+      },
+      {
+        "frame": 742,
+        "x": 996.0,
+        "y": 520.125,
+        "detected": true
+      },
+      {
+        "frame": 743,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 744,
+        "x": 843.0,
+        "y": 409.0,
+        "detected": true
+      },
+      {
+        "frame": 745,
+        "x": 872.25,
+        "y": 429.75,
+        "detected": true
+      },
+      {
+        "frame": 746,
+        "x": null,
+        "y": null,
+        "detected": false
+      },
+      {
+        "frame": 747,
+        "x": 903.75,
+        "y": 453.0,
+        "detected": true
+      },
+      {
+        "frame": 748,
+        "x": 906.0,
+        "y": 451.5,
+        "detected": true
+      },
+      {
+        "frame": 749,
+        "x": 905.25,
+        "y": 450.75,
+        "detected": true
+      },
+      {
+        "frame": 750,
+        "x": 906.0,
+        "y": 450.75,
+        "detected": true
+      },
+      {
+        "frame": 751,
+        "x": 904.5,
+        "y": 450.375,
+        "detected": true
+      },
+      {
+        "frame": 752,
+        "x": 904.5,
+        "y": 450.75,
+        "detected": true
+      },
+      {
+        "frame": 753,
+        "x": 904.5,
+        "y": 450.75,
+        "detected": true
+      },
+      {
+        "frame": 754,
+        "x": 904.5,
+        "y": 450.75,
+        "detected": true
+      },
+      {
+        "frame": 755,
+        "x": 904.5,
+        "y": 450.75,
+        "detected": true
+      },
+      {
+        "frame": 756,
+        "x": 904.5,
+        "y": 450.75,
+        "detected": true
+      },
+      {
+        "frame": 757,
+        "x": 904.5,
+        "y": 450.75,
+        "detected": true
+      },
+      {
+        "frame": 758,
+        "x": 906.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 759,
+        "x": 906.0,
+        "y": 447.75,
+        "detected": true
+      },
+      {
+        "frame": 760,
+        "x": 906.75,
+        "y": 445.875,
+        "detected": true
+      },
+      {
+        "frame": 761,
+        "x": 906.0,
+        "y": 447.0,
+        "detected": true
+      },
+      {
+        "frame": 762,
+        "x": 906.0,
+        "y": 446.25,
+        "detected": true
+      },
+      {
+        "frame": 763,
+        "x": 904.5,
+        "y": 447.375,
+        "detected": true
+      },
+      {
+        "frame": 764,
+        "x": 921.0,
+        "y": 437.25,
+        "detected": true
+      },
+      {
+        "frame": 765,
+        "x": 921.0,
+        "y": 437.25,
+        "detected": true
+      },
+      {
+        "frame": 766,
+        "x": 921.75,
+        "y": 437.25,
+        "detected": true
+      },
+      {
+        "frame": 767,
+        "x": 921.75,
+        "y": 436.875,
+        "detected": true
+      },
+      {
+        "frame": 768,
+        "x": 903.0,
+        "y": 448.125,
+        "detected": true
+      },
+      {
+        "frame": 769,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 770,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 771,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 772,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 773,
+        "x": 903.0,
+        "y": 447.75,
+        "detected": true
+      },
+      {
+        "frame": 774,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 775,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 776,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 777,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 778,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 779,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 780,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 781,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 782,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 783,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 784,
+        "x": 903.0,
+        "y": 448.5,
+        "detected": true
+      },
+      {
+        "frame": 785,
+        "x": 903.0,
+        "y": 448.875,
+        "detected": true
+      },
+      {
+        "frame": 786,
+        "x": 903.0,
+        "y": 447.75,
+        "detected": true
+      },
+      {
+        "frame": 787,
+        "x": 903.0,
+        "y": 446.25,
+        "detected": true
+      },
+      {
+        "frame": 788,
+        "x": 903.0,
+        "y": 448.875,
+        "detected": true
+      },
+      {
+        "frame": 789,
+        "x": 903.0,
+        "y": 449.25,
+        "detected": true
+      },
+      {
+        "frame": 790,
+        "x": 903.0,
+        "y": 449.25,
+        "detected": true
+      },
+      {
+        "frame": 791,
+        "x": 903.0,
+        "y": 449.25,
+        "detected": true
+      },
+      {
+        "frame": 792,
+        "x": 903.0,
+        "y": 449.25,
+        "detected": true
+      },
+      {
+        "frame": 793,
+        "x": 903.0,
+        "y": 449.25,
+        "detected": true
+      },
+      {
+        "frame": 794,
+        "x": 903.0,
+        "y": 449.25,
+        "detected": true
+      },
+      {
+        "frame": 795,
+        "x": 903.0,
+        "y": 449.25,
+        "detected": true
+      },
+      {
+        "frame": 796,
+        "x": 903.0,
+        "y": 449.25,
+        "detected": true
+      },
+      {
+        "frame": 797,
+        "x": null,
+        "y": null,
+        "detected": false
+      }
+    ],
+    "user_label": "Drop",
+    "court_area": null,
+    "stats": {
+      "total_frames": 189,
+      "detected_frames": 159,
+      "detection_rate": 0.8412698412698413
+    },
+    "metadata": {
+      "predicted_type": "Drop",
+      "correct": true,
+      "old_params": {
+        "overall_slope": -3.75,
+        "highest_position_ratio": 0.76,
+        "velocity": 118.91815948486328,
+        "acceleration": 2.5856926441192627,
+        "y_range": 24.0,
+        "high_ball_ratio": 0.0,
+        "last_frames_low": true,
+        "has_turning_point": false,
+        "turning_point_info": ""
+      }
+    }
+  }
+]
