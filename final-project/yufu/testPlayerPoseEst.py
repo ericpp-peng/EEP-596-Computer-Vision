@@ -753,6 +753,17 @@ def main():
                         break
                 
                 if ball_at_raise and ball_now:
+                    # 檢查是否有足夠的追蹤點
+                    if len(tracking_points) == 0:
+                        print(f"   ⚠️  警告：沒有追蹤到任何球的位置，跳過分析")
+                        # 重置追蹤狀態
+                        arm_raised_frame = None
+                        tracking_points = []
+                        analysis_complete = False
+                        shot_display_timer = 0
+                        trajectory_info = {}
+                        continue
+                    
                     # 計算 y 軸方向變化
                     dy = ball_now[1] - ball_at_raise[1]
                     dx = ball_now[0] - ball_at_raise[0]
